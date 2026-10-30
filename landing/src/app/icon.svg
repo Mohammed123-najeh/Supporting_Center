@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <rect width="32" height="32" rx="8" fill="#FDF4ED"/>
+  <!-- olive leaves -->
+  <path d="M16 9c-3.2-1.6-6-1.3-7.4-.6 1 1.9 3.2 3.3 6 3.2z" fill="#6E6E44"/>
+  <path d="M16 9c3.2-1.6 6-1.3 7.4-.6-1 1.9-3.2 3.3-6 3.2z" fill="#4C4C29"/>
+  <!-- pomegranate body -->
+  <path d="M16 10.5c4 0 6.4 3 6.4 7 0 4.6-3 8-6.4 8s-6.4-3.4-6.4-8c0-4 2.4-7 6.4-7z" fill="#A6222C"/>
+  <!-- crown -->
+  <path d="M13.8 9.2l1 2 1.2-2.2 1.2 2.2 1-2-.6 2.2h-3.2z" fill="#7E161F"/>
+  <!-- seeds -->
+  <g fill="#FDF4ED" fill-opacity="0.92">
+    <circle cx="16" cy="16.4" r="1"/>
+    <circle cx="13.6" cy="18" r="1"/>
+    <circle cx="18.4" cy="18" r="1"/>
+    <circle cx="16" cy="19.4" r="1"/>
+    <circle cx="14.4" cy="20.8" r="0.9"/>
+    <circle cx="17.6" cy="20.8" r="0.9"/>
+  </g>
+</svg>

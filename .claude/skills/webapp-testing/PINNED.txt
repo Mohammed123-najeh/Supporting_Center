@@ -1,0 +1,6 @@
+Source: https://github.com/anthropics/skills
+Commit: dbd4588 (2026-10-09; the repository's latest commit when installed)
+Installed: 2026-10-28 for Supporting_Center (Phase 0 skills setup), for build and QA
+Copied: the single skill folder skills/webapp-testing, unchanged (SKILL.md, LICENSE.txt, scripts/with_server.py, examples/*.py). Checked by SHA-256 against the commit.
+License: Apache 2.0 (LICENSE.txt).
+Not installed yet: Python Playwright, which the scripts need. Install it at the build and QA step.

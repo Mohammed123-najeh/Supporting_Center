@@ -1,0 +1,95 @@
+/* "Contact" landing section + the shared ContactForm styles (also used by the
+   standalone /contact page). Uses the landing's own .rmn tokens (--card/--ink/--red/
+   --olive-soft/--dash/--radius/--shadow/--ease) so it themes light+dark automatically
+   and honours RTL via the document direction. No fixed colours except the WhatsApp
+   green + the success green. */
+
+.rmn .rmn-contact{padding:clamp(3.5rem,8vw,7rem) 0;position:relative}
+.rmn .rmn-contact-head{max-width:640px;margin:0 auto clamp(2rem,4vw,3.2rem);text-align:center}
+.rmn .rmn-contact-head .stitch-divider{justify-content:center}
+.rmn .rmn-contact-head h2{margin:.4rem 0 .8rem}
+.rmn .rmn-contact-head p{color:var(--olive-soft);font-size:1.02rem;line-height:1.7;margin:0}
+
+/* Split: form (wider) + method rail. Collapses to one column on narrow. */
+.rmn .rmn-contact-grid{display:grid;grid-template-columns:1.35fr .95fr;gap:clamp(1.4rem,3vw,2.6rem);align-items:start;max-width:1080px;margin:0 auto}
+@media (max-width:860px){ .rmn .rmn-contact-grid{grid-template-columns:1fr} }
+
+/* ── FORM ─────────────────────────────────────────────────────────────────── */
+.rmn .rmn-contact-form-wrap{background:var(--card);border:1px solid var(--dash);border-radius:calc(var(--radius) + 6px);
+  padding:clamp(1.3rem,3vw,2rem);box-shadow:var(--shadow)}
+.rmn .rmn-cf{display:flex;flex-direction:column;gap:1rem}
+.rmn .rmn-cf-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media (max-width:520px){ .rmn .rmn-cf-row{grid-template-columns:1fr} }
+.rmn .rmn-cf-field{display:flex;flex-direction:column;gap:.4rem;min-width:0}
+.rmn .rmn-cf-label{font-size:.82rem;font-weight:700;color:var(--ink);letter-spacing:.01em;font-family:var(--font-tajawal),'Tajawal',sans-serif}
+.rmn .rmn-cf-input{width:100%;background:var(--page);color:var(--ink);border:1.5px solid var(--dash);border-radius:12px;
+  padding:.72rem .9rem;font-size:max(16px,.95rem);font-family:inherit;transition:border-color .18s var(--ease),box-shadow .18s var(--ease),background .18s var(--ease)}
+.rmn .rmn-cf-input::placeholder{color:var(--olive-soft);opacity:.7}
+.rmn .rmn-cf-input:focus{outline:none;border-color:var(--red);box-shadow:0 0 0 3px var(--hem);background:var(--card)}
+.rmn .rmn-cf-input[aria-invalid="true"]{border-color:var(--red)}
+.rmn .rmn-cf-textarea{resize:vertical;min-height:120px;line-height:1.6}
+/* native select styled to match, with a custom chevron */
+.rmn .rmn-cf-select{position:relative}
+.rmn .rmn-cf-select select{width:100%;appearance:none;-webkit-appearance:none;background:var(--page);color:var(--ink);
+  border:1.5px solid var(--dash);border-radius:12px;padding:.72rem 2.4rem .72rem .9rem;font-size:max(16px,.95rem);font-family:inherit;cursor:pointer;
+  transition:border-color .18s var(--ease),box-shadow .18s var(--ease)}
+:root[dir="rtl"] .rmn .rmn-cf-select select{padding:.72rem .9rem .72rem 2.4rem}
+.rmn .rmn-cf-select select:focus{outline:none;border-color:var(--red);box-shadow:0 0 0 3px var(--hem)}
+.rmn .rmn-cf-chev{position:absolute;top:50%;inset-inline-end:1rem;width:9px;height:9px;pointer-events:none;
+  border-right:2px solid var(--olive-soft);border-bottom:2px solid var(--olive-soft);transform:translateY(-70%) rotate(45deg)}
+.rmn .rmn-cf-err{font-size:.78rem;font-weight:600;color:var(--red)}
+/* honeypot — hidden where it stands, off the a11y tree (aria-hidden on the
+   wrapper). Not pushed off-screen: left:-9999px escaped the page's overflow-x
+   clip on /contact (no positioned ancestor there) and, in RTL, made the page
+   ~9000px wide, so phones zoomed the whole Arabic page out to fit it. */
+.rmn .rmn-cf-hp{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+/* response-time promise, right above submit */
+.rmn .rmn-cf-promise{display:inline-flex;align-items:center;gap:8px;margin:.1rem 0 0;font-size:.85rem;color:var(--olive-soft);
+  font-family:var(--font-tajawal),'Tajawal',sans-serif}
+.rmn .rmn-cf-promise svg{width:16px;height:16px;flex:none;stroke:var(--red);stroke-width:1.8;fill:none;stroke-linecap:round}
+.rmn .rmn-cf-error{margin:0;padding:.6rem .8rem;border-radius:10px;background:var(--hem);color:var(--red-deep);font-size:.85rem;font-weight:600}
+.rmn .rmn-cf-submit{align-self:flex-start;min-width:170px;justify-content:center}
+.rmn .rmn-cf-submit:disabled{opacity:.7;cursor:progress}
+
+/* success state — replaces the form in place */
+.rmn .rmn-cf-done{display:flex;flex-direction:column;align-items:center;text-align:center;gap:.55rem;padding:1.5rem .5rem}
+.rmn .rmn-cf-check{width:64px;height:64px}
+.rmn .rmn-cf-check svg{width:100%;height:100%}
+.rmn .rmn-cf-check circle{fill:none;stroke:#1fae5a;stroke-width:3;stroke-dasharray:151;stroke-dashoffset:151;animation:rmnCfRing .5s var(--ease) .05s forwards}
+.rmn .rmn-cf-check path{fill:none;stroke:#1fae5a;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:34;stroke-dashoffset:34;animation:rmnCfTick .35s var(--ease) .4s forwards}
+@keyframes rmnCfRing{to{stroke-dashoffset:0}}
+@keyframes rmnCfTick{to{stroke-dashoffset:0}}
+.rmn .rmn-cf-done h3{margin:.2rem 0 0;font-size:1.3rem;color:var(--ink)}
+.rmn .rmn-cf-done p{margin:0 0 .4rem;color:var(--olive-soft);font-size:.95rem;line-height:1.6;max-width:34ch}
+
+/* ── METHOD CARDS ─────────────────────────────────────────────────────────── */
+.rmn .rmn-contact-methods{display:flex;flex-direction:column;gap:.7rem}
+.rmn .rmn-contact-methods-lab{font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--olive-soft);
+  margin-bottom:.2rem;font-family:var(--font-tajawal),'Tajawal',sans-serif}
+.rmn .rmn-contact-card{display:flex;align-items:flex-start;gap:.85rem;padding:.9rem 1rem;border-radius:var(--radius);
+  background:var(--card);border:1px solid var(--dash);text-decoration:none;color:var(--ink);
+  transition:transform .2s var(--ease),border-color .2s var(--ease),box-shadow .2s var(--ease)}
+a.rmn-contact-card:hover{transform:translateY(-2px);border-color:var(--red);box-shadow:var(--shadow)}
+.rmn .rmn-contact-card-ic{flex:none;width:40px;height:40px;border-radius:11px;display:grid;place-items:center;
+  background:var(--hem);color:var(--red)}
+.rmn .rmn-contact-card-ic svg{width:20px;height:20px;stroke:currentColor;stroke-width:1.7;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.rmn .rmn-contact-card-wa .rmn-contact-card-ic{background:rgba(37,211,102,.14);color:#128c4b}
+.rmn .rmn-contact-card-wa .rmn-contact-card-ic svg{width:22px;height:22px;fill:#128c4b;stroke:none}
+.rmn .rmn-contact-card-body{display:flex;flex-direction:column;gap:1px;min-width:0}
+.rmn .rmn-contact-card-body b{font-size:.95rem;font-weight:700}
+.rmn .rmn-contact-card-val{font-size:.86rem;color:var(--red);font-weight:600;word-break:break-word}
+.rmn .rmn-contact-card-desc{font-size:.78rem;color:var(--olive-soft);margin-top:1px}
+.rmn .rmn-contact-card-static{cursor:default}
+.rmn .rmn-contact-card-static .rmn-contact-card-val{color:var(--ink);font-weight:500}
+/* full-page link */
+.rmn .rmn-contact-full{display:inline-flex;align-items:center;gap:6px;margin-top:.3rem;align-self:flex-start;
+  font-size:.86rem;font-weight:700;color:var(--red);text-decoration:none}
+.rmn .rmn-contact-full svg{width:16px;height:16px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s var(--ease)}
+:root[dir="rtl"] .rmn .rmn-contact-full svg{transform:scaleX(-1)}
+.rmn .rmn-contact-full:hover svg{transform:translateX(3px)}
+:root[dir="rtl"] .rmn .rmn-contact-full:hover svg{transform:scaleX(-1) translateX(3px)}
+
+@media (prefers-reduced-motion:reduce){
+  .rmn .rmn-cf-check circle,.rmn .rmn-cf-check path{animation:none;stroke-dashoffset:0}
+  a.rmn-contact-card:hover{transform:none}
+}

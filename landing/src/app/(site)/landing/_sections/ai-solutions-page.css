@@ -1,0 +1,84 @@
+/* Standalone /ai-solutions details page. Scoped under .rmn so it inherits the
+   embroidery palette + dark-theme token overrides. The 12 solution blocks read as
+   a vertical thread of cards (one per solution, deep-linkable #ai-<slug>), each with
+   an intro, one or two capability lists, and an optional chat-style Q&A or numbered
+   workflow. A closing "why our solutions" grid + CTA mirror the electronic-payment
+   page's structure. All colour/spacing from tokens; RTL-safe via logical props. */
+
+.rmn .rmn-ai{padding:7rem 0 5rem}
+.rmn .rmn-ai .container{width:min(1040px,92%)}
+
+/* top bar: brand + back-home (same as the electronic-payment detail page) */
+.rmn .rmn-ai-top{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:2.4rem}
+
+/* hero */
+.rmn .rmn-ai-hero{max-width:760px}
+.rmn .rmn-ai-hero h1{font-size:clamp(1.9rem,4.4vw,2.9rem);margin:.7rem 0 .5rem;line-height:1.35}
+.rmn .rmn-ai-hero .rmn-ai-sub{font-size:clamp(1.05rem,2.2vw,1.3rem);color:var(--olive);font-weight:600;margin-bottom:1rem}
+.rmn .rmn-ai-hero .rmn-ai-lead{color:var(--olive-soft);font-size:1.02rem;line-height:1.9}
+.rmn .rmn-ai-hero .rmn-ai-lead + .rmn-ai-lead{margin-top:.9rem}
+.rmn .rmn-ai-hero .rmn-ai-tagline{margin-top:1.2rem;padding-inline-start:1rem;border-inline-start:3px solid var(--red);color:var(--ink);font-weight:600;line-height:1.7}
+
+/* the knowledge-workspace demo (ai-chapter/rag-stage.tsx brings its own frame) */
+.rmn .rmn-ai-demo-wrap{margin-top:3rem}
+.rmn .rmn-ai-demo-head{max-width:640px;margin:0 auto 1.4rem;text-align:center}
+.rmn .rmn-ai-demo-eyebrow{display:inline-flex;align-items:center;gap:.6rem;font-size:.72rem;font-weight:700;letter-spacing:.3em;text-transform:uppercase;color:var(--red)}
+.rmn .rmn-ai-demo-eyebrow::before,.rmn .rmn-ai-demo-eyebrow::after{content:'✕';color:var(--pink);font-size:.7rem;letter-spacing:0}
+.rmn .rmn-ai-demo-lead{margin-top:.55rem;color:var(--olive-soft);font-size:.98rem;line-height:1.7}
+
+/* ── solution EXPLORER: a chip/tab rail (all solutions at a glance) + one detail
+   panel. Replaces the tall 12-block thread on the public page so there's no long
+   scroll — only the picked solution is shown. Chips clone the home-teaser look
+   (.rmn-ais-chip); active = filled pomegranate. Scales to N (the rail wraps, and
+   scroll-snaps horizontally on phones). ── */
+.rmn .rmn-ai-explorer{margin-top:3rem}
+.rmn .rmn-ai-tabs{display:flex;flex-wrap:wrap;justify-content:center;gap:.6rem;max-width:920px;margin:0 auto 2rem}
+.rmn .rmn-ai-tab{
+  display:inline-flex;align-items:center;gap:.55rem;
+  padding:.6rem 1rem;border-radius:999px;cursor:pointer;
+  background:color-mix(in srgb,var(--card) 92%,transparent);
+  border:1px solid var(--dash);
+  color:var(--ink);font-family:var(--font-tajawal),'Tajawal',sans-serif;font-size:.92rem;font-weight:600;line-height:1;
+  box-shadow:0 4px 14px -10px rgba(126,22,31,.5);
+  transition:transform .25s var(--ease),border-color .25s var(--ease),box-shadow .25s var(--ease),background .25s,color .25s;
+}
+.rmn .rmn-ai-tab:hover{transform:translateY(-2px);border-color:var(--hem);background:color-mix(in srgb,var(--red) 6%,var(--card))}
+.rmn .rmn-ai-tab:focus-visible{outline:2px dashed var(--red);outline-offset:3px}
+.rmn .rmn-ai-tab .rmn-ai-tab-ic{display:inline-flex;color:var(--red);flex:0 0 auto}
+.rmn .rmn-ai-tab .rmn-ai-tab-ic svg{width:16px;height:16px}
+.rmn .rmn-ai-tab .rmn-ai-tab-ic .rmn-pf-emoji{font-size:1rem;line-height:1}
+.rmn .rmn-ai-tab .rmn-ai-tab-t{white-space:nowrap}
+/* active tab — filled pomegranate, icon inverts */
+.rmn .rmn-ai-tab.on{background:var(--red);border-color:var(--red);color:#FDF4ED;box-shadow:0 10px 22px -12px rgba(126,22,31,.7);transform:none}
+.rmn .rmn-ai-tab.on .rmn-ai-tab-ic{color:#FDF4ED}
+.rmn .rmn-ai-tab.on:hover{transform:none;background:var(--red-deep)}
+
+/* the single detail panel — a gentle fade/rise each time the solution changes
+   (key={slug} remounts it → the entry animation replays). Reduced-motion opts out. */
+.rmn .rmn-ai-panel{animation:rmnAiPanelIn .38s var(--ease)}
+@keyframes rmnAiPanelIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.rmn .rmn-ai-panel{animation:none}}
+/* the panel's block sheds its own top gap (the rail already spaces it) */
+.rmn .rmn-ai-panel .rmn-ai-block{scroll-margin-top:7rem}
+
+/* phones: keep the rail one swipeable row instead of eating 4+ stacked rows */
+@media (max-width:560px){
+  .rmn .rmn-ai-tabs{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;scroll-snap-type:x proximity;padding-bottom:.5rem;margin-inline:-.2rem;-webkit-overflow-scrolling:touch}
+  .rmn .rmn-ai-tabs::-webkit-scrollbar{height:0}
+  .rmn .rmn-ai-tab{scroll-snap-align:start;flex:0 0 auto}
+}
+
+/* why-grid + cta */
+.rmn .rmn-ai-why{margin-top:3.6rem}
+.rmn .rmn-ai-why-head{text-align:center;max-width:620px;margin:0 auto 2rem}
+.rmn .rmn-ai-why-head h2{font-size:clamp(1.5rem,3vw,2.1rem)}
+.rmn .rmn-ai-why-grid{display:grid;gap:1rem;grid-template-columns:1fr}
+@media (min-width:640px){.rmn .rmn-ai-why-grid{grid-template-columns:1fr 1fr}}
+@media (min-width:960px){.rmn .rmn-ai-why-grid{grid-template-columns:1fr 1fr 1fr}}
+.rmn .rmn-ai-why-card{padding:1.3rem 1.4rem;border-radius:16px;background:color-mix(in srgb,var(--card) 85%,transparent);border:1px solid var(--dash)}
+.rmn .rmn-ai-why-card h3{font-size:1.02rem;margin-bottom:.4rem}
+.rmn .rmn-ai-why-card p{color:var(--olive-soft);font-size:.92rem;line-height:1.7}
+
+.rmn .rmn-ai-cta{margin-top:3.6rem;text-align:center;padding:2.6rem 1.5rem;border-radius:calc(var(--radius) + 6px);background:color-mix(in srgb,var(--red) 8%,var(--card));border:1px dashed var(--hem)}
+.rmn .rmn-ai-cta h2{font-size:clamp(1.4rem,3vw,2rem);margin-bottom:.6rem}
+.rmn .rmn-ai-cta p{color:var(--olive-soft);max-width:560px;margin:0 auto 1.4rem;line-height:1.8}

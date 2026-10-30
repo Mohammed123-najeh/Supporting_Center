@@ -1,0 +1,6 @@
+Source: https://github.com/anthropics/skills
+Commit: dbd4588 (2026-10-09; the repository's latest commit when installed)
+Installed: 2026-10-28 for Supporting_Center (Phase 0 skills setup); used only if the design exposes tools to AI agents
+Copied: the single skill folder skills/mcp-builder, unchanged (SKILL.md, LICENSE.txt, reference/*.md, scripts/). Checked by SHA-256 against the commit.
+License: Apache 2.0 (LICENSE.txt).
+Not installed yet: the Python packages the evaluation scripts need (scripts/requirements.txt: anthropic>=0.39.0, mcp>=1.1.0).

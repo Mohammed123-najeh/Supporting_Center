@@ -1,0 +1,214 @@
+/* The support-chat demo (chat-island.tsx). An async stylesheet: it arrives with the
+   island's chunk, after first paint, so it never blocks the landing. Two-class
+   selectors throughout (its <link> lands before the inline SITE_CSS), no universal
+   or tag-only rightmost selectors, no @property. The screen's colour tokens
+   (--aic-*) live in ai-chapter.css so the server-rendered skeleton shares them.
+   Every animation sits under prefers-reduced-motion:no-preference; the paused
+   state ([data-paused]) is a site rule in ai-chapter.css. */
+
+.rmn .rmn-aic-app{
+  position:absolute;inset:0;z-index:1;display:flex;flex-direction:column;
+  background:var(--aic-bg);color:var(--aic-ink);text-align:start;
+  font:400 clamp(10.5px,1.95cqi,14px)/1.42 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.rmn .rmn-aic-app:lang(ar){font-family:var(--font-tajawal),'Tajawal',-apple-system,"Segoe UI",Tahoma,sans-serif}
+.rmn .rmn-aic-vh{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+
+/* status bar across the open display (mirrors in RTL, like iOS) */
+.rmn .rmn-aic-sbar{flex:none;display:flex;align-items:center;justify-content:space-between;height:2.4em;padding:0 1.7em;font-size:.82em;font-weight:600}
+.rmn .rmn-aic-sbar .g-status{height:.95em;width:auto}
+
+.rmn .rmn-aic-panes{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr}
+
+/* ── left pane: the store's order page ─────────────────────────────────────── */
+.rmn .rmn-aic-order{min-width:0;min-height:0;overflow:hidden;display:flex;flex-direction:column;gap:.75em;padding:.2em 1.45em 1.15em;background:var(--aic-bg-2)}
+.rmn .rmn-aic-ohead{display:flex;align-items:center;gap:.55em;padding:.3em 0 .1em}
+.rmn .rmn-aic-ohead b{font-weight:700}
+.rmn .rmn-aic-ohead > span{margin-inline-start:auto;font-size:.8em;color:var(--aic-muted)}
+.rmn .rmn-aic-omark,.rmn .rmn-aic-mark{display:grid;place-items:center;border-radius:50%;background:#FDF4ED}
+.rmn .rmn-aic-omark{width:1.9em;height:1.9em;box-shadow:0 0 0 1px var(--aic-line)}
+.rmn .rmn-aic-omark svg,.rmn .rmn-aic-mark svg{width:72%;height:72%;display:block}
+.rmn .rmn-aic-oprod{display:flex;align-items:center;gap:.8em;padding:.6em;border-radius:1em;background:var(--aic-card);box-shadow:0 1px 0 var(--aic-line)}
+.rmn .rmn-aic-oprod img{width:3.6em;height:3.6em;flex:none;border-radius:.7em;object-fit:cover;background:var(--aic-bg-2)}
+.rmn .rmn-aic-oprod > span{display:grid;min-width:0}
+.rmn .rmn-aic-oprod b{font-weight:700}
+.rmn .rmn-aic-oprod > span > span{font-size:.8em;color:var(--aic-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rmn .rmn-aic-oprod em{justify-self:start;margin-top:.1em;font-style:normal;font-weight:700;font-size:.9em;color:var(--aic-accent)}
+.rmn .rmn-aic-ono{display:flex;justify-content:space-between;font-size:.82em;color:var(--aic-muted)}
+.rmn .rmn-aic-ono b{font-weight:600;color:var(--aic-ink)}
+
+/* tracker: done → now (pulses when the assistant finds the order) → next */
+.rmn .rmn-aic-track{list-style:none;display:grid}
+.rmn .rmn-aic-track li{position:relative;display:grid;grid-template-columns:1.5em 1fr;column-gap:.55em;padding-bottom:.6em}
+.rmn .rmn-aic-track li > i{position:relative;grid-row:span 2;width:.9em;height:.9em;margin:.24em auto 0;border-radius:50%;border:2px solid var(--aic-line-strong);background:var(--aic-bg-2)}
+.rmn .rmn-aic-track li:not(:last-child)::before{content:'';position:absolute;inset-inline-start:calc(.75em - 1px);top:1.3em;bottom:-.15em;width:2px;background:var(--aic-line-strong)}
+.rmn .rmn-aic-track .is-done::before{background:var(--aic-me)}
+.rmn .rmn-aic-track .is-done > i,.rmn .rmn-aic-track .is-now > i{border-color:var(--aic-me);background:var(--aic-me)}
+.rmn .rmn-aic-track .is-now > i::after{content:'';position:absolute;inset:-.45em;border-radius:50%;border:2px solid var(--aic-me);opacity:0}
+.rmn .rmn-aic-track li > b{font-size:.92em;font-weight:600}
+.rmn .rmn-aic-track li > span{font-size:.78em;color:var(--aic-muted)}
+
+/* today's slot / tomorrow's, stacked in one cell (data-eta on the root) */
+.rmn .rmn-aic-eta{display:inline-grid}
+.rmn .rmn-aic-eta > span{grid-area:1/1}
+.rmn .rmn-aic-eta .is-b,.rmn .rmn-aic-app[data-eta] .rmn-aic-eta .is-a{opacity:0}
+.rmn .rmn-aic-app[data-eta] .rmn-aic-eta .is-b{opacity:1}
+
+.rmn .rmn-aic-ocard{margin-top:auto;display:grid;border-radius:1em;background:var(--aic-card);box-shadow:0 1px 0 var(--aic-line);overflow:hidden}
+.rmn .rmn-aic-orow{position:relative;display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:.15em .6em;padding:.55em .8em;font-size:.86em}
+.rmn .rmn-aic-orow + .rmn-aic-orow{border-top:1px solid var(--aic-line)}
+.rmn .rmn-aic-orow > span:first-child{color:var(--aic-muted)}
+.rmn .rmn-aic-orow > b,.rmn .rmn-aic-odel .rmn-aic-eta{font-weight:600}
+.rmn .rmn-aic-odel .rmn-aic-eta > span{justify-self:end;text-align:end}
+.rmn .rmn-aic-upd{flex-basis:100%;font-style:normal;font-size:.82em;font-weight:600;color:var(--aic-ok);opacity:0}
+.rmn .rmn-aic-app[data-eta] .rmn-aic-upd{opacity:1}
+/* the row the assistant just changed keeps a soft tint */
+.rmn .rmn-aic-odel::after,.rmn .rmn-aic-oret::after{content:'';position:absolute;inset:0;background:var(--aic-hl);opacity:0;pointer-events:none}
+.rmn .rmn-aic-app[data-eta] .rmn-aic-odel::after,.rmn .rmn-aic-app[data-ret] .rmn-aic-oret::after{opacity:.55}
+
+/* ── right pane: the chat ──────────────────────────────────────────────────── */
+.rmn .rmn-aic-chat{position:relative;min-width:0;min-height:0;display:flex;flex-direction:column;background:var(--aic-bg)}
+.rmn .rmn-aic-head{flex:none;display:flex;align-items:center;gap:.55em;padding:.2em .95em .6em;border-bottom:1px solid var(--aic-line)}
+.rmn .rmn-aic-back{display:grid;color:var(--aic-accent)}
+.rmn .rmn-aic-back svg{width:1.25em;height:1.25em}
+.rmn .rmn-aic-app[dir="rtl"] .rmn-aic-back svg{transform:scaleX(-1)}
+.rmn .rmn-aic-av{position:relative;flex:none;display:grid}
+.rmn .rmn-aic-mark{width:2.3em;height:2.3em;box-shadow:0 0 0 1px var(--aic-line)}
+.rmn .rmn-aic-av > i{position:absolute;inset-inline-end:-.05em;bottom:-.05em;width:.62em;height:.62em;border-radius:50%;background:#2BB673;box-shadow:0 0 0 2px var(--aic-bg)}
+.rmn .rmn-aic-who{display:grid;min-width:0;line-height:1.25}
+.rmn .rmn-aic-who b{font-weight:700;font-size:.98em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rmn .rmn-aic-who span{font-size:.76em;color:var(--aic-muted)}
+.rmn .rmn-aic-lock{margin-inline-start:auto;display:grid;color:var(--aic-muted)}
+.rmn .rmn-aic-lock svg{width:1em;height:1em}
+
+/* phones: the order page becomes a banner above the chat */
+.rmn .rmn-aic-banner{display:none}
+
+/* the log clips (it is never a scroll container); the column moves by transform */
+.rmn .rmn-aic-log{position:relative;flex:1;min-height:0;overflow:hidden;overflow:clip}
+.rmn .rmn-aic-log::before{content:'';position:absolute;inset:0 0 auto;height:1.6em;z-index:2;pointer-events:none;background:linear-gradient(var(--aic-bg),transparent)}
+.rmn .rmn-aic-col{position:absolute;top:0;inset-inline:0;display:flex;flex-direction:column;gap:.5em;padding:.85em .95em 1em}
+/* the visitor's own exchanges: the same column rhythm, so their bubbles take sides too */
+.rmn .rmn-aic-live{display:flex;flex-direction:column;gap:.5em}
+.rmn .rmn-aic-live:empty{display:none}
+
+.rmn .rmn-aic-notice{align-self:center;display:flex;align-items:flex-start;gap:.45em;max-width:94%;padding:.55em .8em;border-radius:.75em;background:var(--aic-note);color:var(--aic-note-ink);font-size:.76em;line-height:1.45}
+.rmn .rmn-aic-lockic{flex:none;width:1.05em;height:1.05em;margin-top:.12em}
+.rmn .rmn-aic-day{align-self:center;margin:.15em 0}
+.rmn .rmn-aic-day span{display:inline-block;padding:.18em .75em;border-radius:1em;background:var(--aic-chip);color:var(--aic-muted);font-size:.72em;font-weight:600}
+
+/* bubbles: the customer on the end side, the assistant on the start side */
+.rmn .rmn-aic-m{align-self:flex-end;max-width:84%}
+.rmn .rmn-aic-a{position:relative;align-self:flex-start;max-width:88%}
+.rmn .rmn-aic-bub{display:block;padding:.5em .8em .35em;border-radius:1.15em;font-size:.95em;line-height:1.42;overflow-wrap:anywhere}
+.rmn .rmn-aic-app:lang(ar) .rmn-aic-bub,.rmn .rmn-aic-a:lang(ar) .rmn-aic-bub{line-height:1.62}
+.rmn .rmn-aic-m .rmn-aic-bub{background:var(--aic-me);color:#fff;border-end-end-radius:.35em}
+.rmn .rmn-aic-a .rmn-aic-bub{background:var(--aic-bot);color:var(--aic-ink);border-end-start-radius:.35em;transform-origin:50% 100%}
+.rmn .rmn-aic-meta{display:flex;justify-content:flex-end;align-items:center;gap:.25em;margin-top:.1em;font-size:.68em;opacity:.75}
+.rmn .rmn-aic-ticks{display:inline-grid;color:rgba(255,255,255,.75)}
+.rmn .rmn-aic-ticks[data-read]{color:#A5E4FF}
+.rmn .rmn-aic-ticks svg{width:1.35em;height:.85em}
+/* a reply streams in a few words at a time (no element per word). The text is a
+   block of its own, so the extras added under it never re-wrap it in a new box */
+.rmn .rmn-aic-txt{display:block}
+.rmn .rmn-aic-c{unicode-bidi:isolate}
+.rmn .rmn-aic-size{display:block;height:0;overflow:hidden;visibility:hidden}
+
+/* the assistant at work; its reply takes this place when it comes */
+.rmn .rmn-aic-typing{display:flex;align-items:center;gap:.55em;white-space:nowrap}
+.rmn .rmn-aic-dots{display:flex;gap:.24em;padding:.62em .78em;border-radius:1.15em;border-end-start-radius:.35em;background:var(--aic-bot)}
+.rmn .rmn-aic-dots i{width:.42em;height:.42em;border-radius:50%;background:var(--aic-muted);opacity:.55}
+.rmn .rmn-aic-status{font-size:.74em;color:var(--aic-muted)}
+
+/* what the assistant did / where it read it / where to go next */
+.rmn .rmn-aic-act,.rmn .rmn-aic-src,.rmn .rmn-aic-link{display:flex;align-items:center;gap:.4em;width:fit-content;margin-top:.45em;padding:.3em .6em;border-radius:.6em;font-size:.82em;font-weight:600;line-height:1.3}
+.rmn .rmn-aic-act{background:var(--aic-ok-bg);color:var(--aic-ok)}
+.rmn .rmn-aic-src{background:var(--aic-chip);color:var(--aic-muted)}
+.rmn .rmn-aic-link{background:var(--aic-me);color:#fff;text-decoration:none}
+.rmn .rmn-aic-link:focus-visible{outline:2px solid var(--aic-accent);outline-offset:2px}
+.rmn .rmn-aic-act svg,.rmn .rmn-aic-src svg{flex:none;width:1.1em;height:1.1em}
+
+.rmn .rmn-aic-quick{align-self:flex-start;display:flex;flex-wrap:wrap;gap:.4em;margin-top:.1em}
+.rmn .rmn-aic-qbtn{padding:.42em .85em;border-radius:1.2em;border:1px solid var(--aic-accent);background:var(--aic-bg);color:var(--aic-accent);font:inherit;font-size:.86em;font-weight:600;cursor:pointer;transition:background-color .15s,color .15s}
+.rmn .rmn-aic-qbtn:focus-visible{outline:2px solid var(--aic-accent);outline-offset:2px}
+@media (hover:hover){.rmn .rmn-aic-qbtn:hover{background:var(--aic-me);border-color:var(--aic-me);color:#fff}}
+
+/* composer: a fixed two-line box (typed text wraps inside; nothing moves) */
+.rmn .rmn-aic-composer{position:relative;flex:none;display:flex;align-items:flex-end;gap:.5em;padding:.5em .75em .75em;border-top:1px solid var(--aic-line);background:var(--aic-bg)}
+.rmn .rmn-aic-plus{flex:none;display:grid;place-items:center;width:2.3em;height:2.3em;color:var(--aic-accent)}
+.rmn .rmn-aic-plus svg{width:1.3em;height:1.3em}
+.rmn .rmn-aic-field{position:relative;flex:1;min-width:0}
+.rmn .rmn-aic-input,.rmn .rmn-aic-ghost{font:inherit;font-size:.95em;line-height:1.3;padding:.5em .95em}
+.rmn .rmn-aic-input{display:block;width:100%;height:calc(2.6em + 2px + 1em);resize:none;overflow:hidden;border-radius:1.15em;border:1px solid var(--aic-line-strong);background:var(--aic-field);color:var(--aic-ink);outline:none;transition:border-color .15s,box-shadow .15s}
+.rmn .rmn-aic-input::placeholder{color:var(--aic-muted);opacity:1}
+.rmn .rmn-aic-input:focus{border-color:var(--aic-accent);box-shadow:0 0 0 3px var(--aic-ring);overflow:auto}
+.rmn .rmn-aic-field[data-typing] .rmn-aic-input::placeholder{color:transparent}
+.rmn .rmn-aic-ghost{position:absolute;inset:1px;overflow:hidden;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--aic-ink);pointer-events:none}
+.rmn .rmn-aic-send{flex:none;display:grid;place-items:center;width:2.4em;height:2.4em;margin-bottom:.35em;border:0;border-radius:50%;background:var(--aic-me);color:#fff;cursor:pointer;transition:transform .12s}
+.rmn .rmn-aic-send:active{transform:scale(.92)}
+.rmn .rmn-aic-send:focus-visible{outline:2px solid var(--aic-accent);outline-offset:2px}
+.rmn .rmn-aic-send svg{width:1.2em;height:1.2em}
+/* "try it yourself": once the scene is over, a hint sits on the composer's edge and
+   points into it (a tap focuses it), the field takes the accent colour and a ring
+   pulses out of it a few times. The column keeps room under the last message so
+   the hint never covers it. */
+.rmn .rmn-aic-coach{position:absolute;z-index:3;bottom:calc(100% - .6em);inset-inline:0;margin-inline:auto;width:max-content;max-width:calc(100% - 1.6em);display:flex;align-items:center;gap:.45em;padding:.5em 1em;border:0;border-radius:2em;background:var(--aic-me);color:#fff;font:inherit;font-size:.86em;font-weight:700;line-height:1.2;white-space:nowrap;cursor:pointer;box-shadow:0 10px 22px -10px rgba(120,20,30,.7);visibility:hidden;opacity:0;transform:translate3d(0,.5em,0);transition:opacity .3s ease,transform .35s cubic-bezier(.22,1,.36,1),visibility 0s .35s}
+.rmn .rmn-aic-coach::after{content:'';position:absolute;top:100%;left:50%;width:.7em;height:.7em;margin:-.4em 0 0 -.35em;border-radius:0 0 .18em 0;background:inherit;transform:rotate(45deg)}
+.rmn .rmn-aic-coach svg{flex:none;width:1.05em;height:1.05em}
+.rmn .rmn-aic-coach:focus-visible{outline:2px solid var(--aic-accent);outline-offset:3px}
+.rmn .rmn-aic-app[data-try] .rmn-aic-coach{visibility:visible;opacity:1;transform:none;transition:opacity .3s ease,transform .35s cubic-bezier(.22,1,.36,1),visibility 0s}
+.rmn .rmn-aic-app[data-try] .rmn-aic-col{padding-bottom:3.3em}
+.rmn .rmn-aic-app[data-try] .rmn-aic-input{border-color:var(--aic-accent)}
+.rmn .rmn-aic-field::after{content:'';position:absolute;inset:-2px;border-radius:1.25em;border:2px solid var(--aic-accent);opacity:0;pointer-events:none}
+/* touch: 16px text, or iOS zooms the page when the composer is focused */
+@media (pointer:coarse){.rmn .rmn-aic-input,.rmn .rmn-aic-ghost{font-size:max(16px,.95em)}}
+
+/* ── phones: the open Duo stands in portrait; one column ───────────────────── */
+@media (max-width:760px){
+  /* true to scale: a phone's 17px text on a screen this wide */
+  .rmn .rmn-aic-app{font-size:clamp(13.5px,4.4cqi,16px)}
+  .rmn .rmn-aic-bub{font-size:1em}
+  .rmn .rmn-aic-panes{grid-template-columns:1fr}
+  .rmn .rmn-aic-order{display:none}
+  .rmn .rmn-aic-banner{flex:none;display:flex;flex-wrap:wrap;align-items:center;gap:.2em .65em;margin:.55em .8em .1em;padding:.45em .6em;border-radius:.9em;background:var(--aic-card);box-shadow:0 0 0 1px var(--aic-line);font-size:.84em}
+  .rmn .rmn-aic-banner img{flex:none;width:2.5em;height:2.5em;border-radius:.55em;object-fit:cover}
+  .rmn .rmn-aic-bn{display:grid;flex:1;min-width:0}
+  .rmn .rmn-aic-bn b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rmn .rmn-aic-bn .rmn-aic-eta{font-size:.92em;color:var(--aic-muted)}
+  .rmn .rmn-aic-banner .rmn-aic-upd{flex-basis:auto;font-size:.78em}
+}
+
+/* ── motion ────────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion:no-preference){
+  .rmn .rmn-aic-col{transition:transform .34s cubic-bezier(.22,1,.36,1)}
+  .rmn .rmn-aic-m{animation:rmnAicRise .26s cubic-bezier(.22,1,.36,1) both}
+  .rmn .rmn-aic-typing{animation:rmnAicFade .2s ease-out both}
+  .rmn .rmn-aic-a[data-s="working"] .rmn-aic-dots i{animation:rmnAicDot 1.05s ease-in-out infinite}
+  .rmn .rmn-aic-a[data-s="working"] .rmn-aic-dots i:nth-child(2){animation-delay:.15s}
+  .rmn .rmn-aic-a[data-s="working"] .rmn-aic-dots i:nth-child(3){animation-delay:.3s}
+  .rmn .rmn-aic-a[data-s="working"] .rmn-aic-status{animation:rmnAicBreathe 1.4s ease-in-out infinite}
+  .rmn .rmn-aic-a[data-s="reply"] .rmn-aic-bub{animation:rmnAicPop .2s cubic-bezier(.22,1,.36,1) both}
+  .rmn .rmn-aic-a[data-s="reply"] .rmn-aic-act,
+  .rmn .rmn-aic-a[data-s="reply"] .rmn-aic-src,
+  .rmn .rmn-aic-a[data-s="reply"] .rmn-aic-link{animation:rmnAicRise .3s cubic-bezier(.22,1,.36,1) both}
+  .rmn .rmn-aic-a[data-s="reply"] .rmn-aic-checkic path{stroke-dasharray:1;stroke-dashoffset:1;animation:rmnAicDraw .45s ease-out .2s forwards}
+  .rmn .rmn-aic-quick .rmn-aic-qbtn{animation:rmnAicRise .3s cubic-bezier(.22,1,.36,1) both}
+  .rmn .rmn-aic-quick .rmn-aic-qbtn + .rmn-aic-qbtn{animation-delay:.07s}
+  .rmn .rmn-aic-app[data-out] .rmn-aic-track .is-now > i::after{animation:rmnAicRing 1.2s ease-out 3}
+  .rmn .rmn-aic-eta > span{transition:opacity .35s ease}
+  .rmn .rmn-aic-app[data-eta] .rmn-aic-upd{animation:rmnAicRise .3s cubic-bezier(.22,1,.36,1) .2s both}
+  .rmn .rmn-aic-app[data-eta] .rmn-aic-odel::after,.rmn .rmn-aic-app[data-ret] .rmn-aic-oret::after{animation:rmnAicLit 1.6s ease-out both}
+  .rmn .rmn-aic-app[data-try] .rmn-aic-coach{animation:rmnAicBob 1.7s ease-in-out .6s 3}
+  .rmn .rmn-aic-app[data-try] .rmn-aic-field::after{animation:rmnAicPulse 1.7s ease-out .35s 3}
+}
+@keyframes rmnAicRise{from{opacity:0;transform:translate3d(0,.55em,0)}to{opacity:1;transform:none}}
+@keyframes rmnAicPop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+@keyframes rmnAicFade{from{opacity:0}to{opacity:1}}
+@keyframes rmnAicDot{0%,70%,100%{opacity:.35;transform:none}35%{opacity:1;transform:translate3d(0,-.2em,0)}}
+@keyframes rmnAicBreathe{50%{opacity:.55}}
+@keyframes rmnAicDraw{to{stroke-dashoffset:0}}
+@keyframes rmnAicRing{0%{opacity:.8;transform:scale(.6)}100%{opacity:0;transform:scale(1.5)}}
+@keyframes rmnAicLit{0%{opacity:0}25%{opacity:1}100%{opacity:.55}}
+@keyframes rmnAicBob{50%{transform:translate3d(0,-.3em,0)}}
+@keyframes rmnAicPulse{0%{opacity:.8;transform:none}100%{opacity:0;transform:scale(1.05,1.22)}}

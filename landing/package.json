@@ -1,0 +1,27 @@
+{
+  "name": "supporting-center-landing",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Public landing page (ported from the Rummanah site, MH_Ecommerces @ 3f6ae5521)",
+  "scripts": {
+    "predev": "node scripts/ensure-next-dir.mjs",
+    "dev": "next dev -p 3100",
+    "build": "next build",
+    "start": "next start -p 3100",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "next": "^15.5.19",
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "@types/react": "^19.0.7",
+    "@types/react-dom": "^19.0.3",
+    "typescript": "^5.7.3",
+    "vitest": "^2.1.9"
+  }
+}

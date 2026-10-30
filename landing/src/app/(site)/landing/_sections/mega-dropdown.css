@@ -1,0 +1,104 @@
+/* Nav mega-dropdown — a fixed panel below the bar. On-brand embroidery styling.
+   Enter/exit via .is-open (opacity + translateY + clip), rows stagger in, a stitched
+   thread draws across the top. GPU-cheap (opacity/transform only). Scoped .rmn. */
+
+.rmn .rmn-mega{
+  position:fixed;top:var(--nav-h,68px);inset-inline:0;z-index:90;
+  display:flex;justify-content:center;padding:0 clamp(1rem,4vw,2rem);
+  pointer-events:none;
+  opacity:0;transform:translateY(-10px);
+  /* Asymmetric: fast CLOSE (.14s, the base/leaving state) so the panel disappears
+     promptly when the cursor leaves; smooth ENTER (.28s, on .is-open below). */
+  transition:opacity .14s var(--ease),transform .14s var(--ease),visibility .14s;
+  visibility:hidden;
+}
+.rmn .rmn-mega.is-open{opacity:1;transform:none;pointer-events:auto;visibility:visible;
+  transition:opacity .28s var(--ease),transform .28s var(--ease),visibility .28s}
+
+.rmn .rmn-mega-inner{
+  position:relative;width:min(760px,100%);
+  background:color-mix(in srgb,var(--card) 96%,transparent);
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  border:1px solid var(--dash);border-radius:20px;
+  padding:clamp(1.2rem,2.6vw,1.8rem);
+  box-shadow:0 40px 90px -30px rgba(126,22,31,.4),0 12px 30px -18px rgba(0,0,0,.3);
+  overflow:hidden;
+}
+/* stitched thread that draws across the top on open */
+.rmn .rmn-mega-inner::before{
+  content:'';position:absolute;top:0;inset-inline:0;height:2px;transform-origin:left;transform:scaleX(0);
+  background:repeating-linear-gradient(90deg,var(--red) 0 7px,transparent 7px 12px);
+}
+:root[dir="rtl"] .rmn .rmn-mega-inner::before{transform-origin:right}
+.rmn .rmn-mega.is-open .rmn-mega-inner::before{transform:scaleX(1);transition:transform .6s var(--ease) .05s}
+
+.rmn .rmn-mega-head{margin-bottom:1rem}
+.rmn .rmn-mega-eyebrow{display:block;font-size:.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--red);
+  font-family:var(--font-tajawal),'Tajawal',sans-serif;margin-bottom:.25rem}
+.rmn .rmn-mega-head h3{font-size:clamp(1.15rem,2.4vw,1.5rem);color:var(--olive);line-height:1.2}
+
+.rmn .rmn-mega-grid{display:grid;grid-template-columns:1fr;gap:.4rem}
+@media (min-width:620px){.rmn .rmn-mega-grid{grid-template-columns:1fr 1fr;gap:.5rem}}
+
+.rmn .rmn-mega-row{display:flex;align-items:center;gap:.85rem;padding:.7rem .8rem;border-radius:13px;
+  color:var(--ink);text-decoration:none;position:relative;
+  transition:background .25s var(--ease),transform .25s var(--ease);
+  opacity:0;transform:translateY(8px)}
+.rmn .rmn-mega.is-open .rmn-mega-row{opacity:1;transform:none;transition:opacity .4s var(--ease),transform .4s var(--ease),background .25s var(--ease)}
+/* stagger the rows on open */
+.rmn .rmn-mega.is-open .rmn-mega-row:nth-child(1){transition-delay:.06s}
+.rmn .rmn-mega.is-open .rmn-mega-row:nth-child(2){transition-delay:.10s}
+.rmn .rmn-mega.is-open .rmn-mega-row:nth-child(3){transition-delay:.14s}
+.rmn .rmn-mega.is-open .rmn-mega-row:nth-child(4){transition-delay:.18s}
+.rmn .rmn-mega.is-open .rmn-mega-row:nth-child(5){transition-delay:.22s}
+.rmn .rmn-mega.is-open .rmn-mega-row:nth-child(6){transition-delay:.26s}
+.rmn .rmn-mega.is-open .rmn-mega-row:nth-child(n+7){transition-delay:.3s}
+.rmn .rmn-mega-row:hover,.rmn .rmn-mega-row:focus-visible{background:color-mix(in srgb,var(--red) 8%,transparent);outline:none}
+.rmn .rmn-mega-row:focus-visible{box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--red) 45%,transparent)}
+
+.rmn .rmn-mega-ic{flex:none;width:38px;height:38px;border-radius:11px;display:grid;place-items:center;
+  color:var(--acc,var(--red));background:color-mix(in srgb,var(--acc,var(--red)) 12%,transparent);
+  border:1px solid color-mix(in srgb,var(--acc,var(--red)) 22%,transparent);
+  transition:transform .25s var(--ease)}
+.rmn .rmn-mega-ic svg{width:20px;height:20px}
+.rmn .rmn-mega-ic img{width:26px;height:26px;object-fit:contain;border-radius:6px}
+.rmn .rmn-mega-ic .rmn-pf-emoji,.rmn .rmn-mega-ic-emoji{font-size:1.15rem;line-height:1}
+.rmn .rmn-mega-row:hover .rmn-mega-ic{transform:scale(1.08)}
+
+/* Team/About rows use a round hoop-framed portrait (echoing the Team section) — the
+   chip that holds an avatar becomes a circular dashed ring, bigger than the icon chip. */
+.rmn .rmn-mega-ic:has(.rmn-mega-avatar-img),.rmn .rmn-mega-ic:has(.rmn-mega-avatar-fb){
+  width:44px;height:44px;border-radius:50%;padding:2px;overflow:hidden;
+  border:1.5px dashed color-mix(in srgb,var(--red) 45%,var(--dash));background:var(--card)}
+.rmn .rmn-mega-avatar-img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block}
+.rmn .rmn-mega-avatar-fb{display:grid;place-items:center;width:100%;height:100%;border-radius:50%;
+  font-family:var(--font-kufi),'Reem Kufi',sans-serif;font-weight:700;color:var(--red);font-size:1.1rem;
+  background:color-mix(in srgb,var(--red) 10%,transparent)}
+
+/* Clients variant: a LogoLoop marquee fills the panel body at constant height, so
+   100+ client logos never overflow the (scroll-less) fixed panel. */
+.rmn .rmn-mega-logos{margin:.2rem -.4rem 0;padding:.3rem 0}
+
+.rmn .rmn-mega-txt{min-width:0;display:flex;flex-direction:column;gap:.1rem}
+.rmn .rmn-mega-title{font-size:.95rem;font-weight:700;color:var(--olive);line-height:1.3;
+  font-family:var(--font-kufi),'Reem Kufi',sans-serif}
+.rmn .rmn-mega-sub{font-size:.8rem;color:var(--olive-soft);line-height:1.45;
+  overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.rmn .rmn-mega-arrow{width:16px;height:16px;flex:none;color:var(--olive-soft);opacity:0;transform:translateX(-4px);
+  transition:opacity .25s var(--ease),transform .25s var(--ease);margin-inline-start:auto}
+:root[dir="rtl"] .rmn .rmn-mega-arrow{transform:scaleX(-1) translateX(-4px)}
+.rmn .rmn-mega-row:hover .rmn-mega-arrow,.rmn .rmn-mega-row:focus-visible .rmn-mega-arrow{opacity:1;transform:none}
+:root[dir="rtl"] .rmn .rmn-mega-row:hover .rmn-mega-arrow,:root[dir="rtl"] .rmn .rmn-mega-row:focus-visible .rmn-mega-arrow{transform:scaleX(-1)}
+
+.rmn .rmn-mega-foot{display:inline-flex;align-items:center;gap:.35rem;margin-top:1rem;
+  color:var(--red);font-weight:700;font-size:.85rem;text-decoration:none;
+  font-family:var(--font-tajawal),'Tajawal',sans-serif}
+.rmn .rmn-mega-foot svg{width:15px;height:15px}
+:root[dir="rtl"] .rmn .rmn-mega-foot svg{transform:scaleX(-1)}
+.rmn .rmn-mega-foot:hover{gap:.6rem}
+.rmn .rmn-mega-foot:focus-visible{outline:2px solid var(--red);outline-offset:3px;border-radius:6px}
+
+@media (prefers-reduced-motion:reduce){
+  .rmn .rmn-mega,.rmn .rmn-mega-row,.rmn .rmn-mega-inner::before,.rmn .rmn-mega-arrow,.rmn .rmn-mega-ic{transition:none}
+  .rmn .rmn-mega.is-open .rmn-mega-row{transition-delay:0s}
+}

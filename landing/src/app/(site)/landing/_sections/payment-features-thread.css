@@ -1,0 +1,74 @@
+/* Electronic-payment features — a vertical scroll-thread timeline. The rail is a
+   faint full-height track; the line fills over it via scaleY (GPU, driven by one
+   rAF). Knots (icon chips) sit ON the line; cards sit beside it. Mobile-first:
+   single column, thread on the inline-start edge. Scoped under .rmn tokens. */
+
+.rmn .rmn-pf{position:relative;padding-block:clamp(2.5rem,6vw,4.5rem)}
+.rmn .rmn-pf-head{text-align:center;margin-bottom:clamp(2rem,5vw,3.5rem)}
+.rmn .rmn-pf-head h2{font-size:clamp(1.6rem,3.4vw,2.4rem);line-height:1.15;letter-spacing:-.02em;margin-top:.5rem;text-wrap:balance}
+
+/* the track holds the rail + line + list. --knot = the inline-start offset the
+   thread runs down (mobile); --knot-size = the icon-chip diameter, --knot-half its
+   half (single source of truth so the chip stays centered on the 2.5px rail). On
+   wide screens the thread centers. */
+.rmn .rmn-pf-track{position:relative;--knot:22px;--knot-size:42px;--knot-half:21px;
+  padding-inline-start:calc(var(--knot) + var(--knot-size))}
+.rmn .rmn-pf-rail,.rmn .rmn-pf-line{position:absolute;top:6px;bottom:6px;inset-inline-start:var(--knot);width:2.5px;border-radius:2px}
+.rmn .rmn-pf-rail{background:var(--dash);opacity:.5}
+.rmn .rmn-pf-line{background:linear-gradient(var(--red),var(--pink));transform:scaleY(0);transform-origin:top;will-change:transform}
+
+.rmn .rmn-pf-list{list-style:none;display:flex;flex-direction:column;gap:clamp(1.4rem,3vw,2.4rem)}
+
+/* a node: knot on the rail + a card. Reveals (fade/slide) when .in is added.
+   scroll-margin clears any fixed header when deep-linked (#pay-feat-<slug>); the
+   <li> target won't match the site-wide section[id]/header[id] scroll-margin rule. */
+.rmn .rmn-pf-node{position:relative;opacity:0;transform:translateY(22px);scroll-margin-block:5.5rem;
+  transition:opacity .7s var(--ease),transform .7s var(--ease);transition-delay:var(--d,0s)}
+.rmn .rmn-pf-node.in{opacity:1;transform:none}
+
+.rmn .rmn-pf-knot{position:absolute;top:0;inset-inline-start:calc(-1 * (var(--knot) + var(--knot-size)) + var(--knot) - var(--knot-half) + 1px);
+  width:var(--knot-size);height:var(--knot-size);border-radius:13px;display:grid;place-items:center;flex:none;z-index:2;
+  color:var(--red);background:var(--card);border:1.5px solid var(--dash);
+  box-shadow:0 6px 16px -8px rgba(126,22,31,.4)}
+.rmn .rmn-pf-knot svg{width:24px;height:24px}
+.rmn .rmn-pf-knot .rmn-pf-emoji{font-size:1.2rem;line-height:1}
+.rmn .rmn-pf-node.in .rmn-pf-knot{animation:rmnPfPop .5s var(--ck-e-back,cubic-bezier(.34,1.56,.64,1)) both;animation-delay:calc(var(--d,0s) + .1s)}
+@keyframes rmnPfPop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+
+.rmn .rmn-pf-card{position:relative;min-width:0;padding:clamp(1rem,2.4vw,1.5rem) clamp(1.1rem,2.6vw,1.6rem);
+  border-radius:16px;border:1px solid var(--dash);background:color-mix(in srgb,var(--card) 66%,transparent);
+  transition:border-color .3s var(--ease),box-shadow .3s var(--ease),transform .3s var(--ease)}
+.rmn .rmn-pf-node:hover .rmn-pf-card,.rmn .rmn-pf-node.is-expanded .rmn-pf-card{
+  border-color:color-mix(in srgb,var(--red) 40%,var(--dash));box-shadow:0 18px 40px -22px rgba(126,22,31,.4)}
+.rmn .rmn-pf-num{position:absolute;top:1rem;inset-inline-end:1.1rem;font-size:.8rem;font-weight:700;color:var(--pink);
+  font-variant-numeric:tabular-nums;opacity:.7}
+.rmn .rmn-pf-card h3{font-size:clamp(1.05rem,2.2vw,1.28rem);color:var(--olive);line-height:1.35;margin-bottom:.35rem;
+  font-family:var(--font-kufi),'Reem Kufi',sans-serif;padding-inline-end:2.4rem}
+.rmn .rmn-pf-sum{color:var(--olive-soft);font-size:.95rem;line-height:1.7}
+.rmn .rmn-pf-body{margin-top:.7rem;border-top:1px dashed var(--dash);padding-top:.7rem}
+.rmn .rmn-pf-body p{color:var(--olive-soft);font-size:.9rem;line-height:1.8}
+.rmn .rmn-pf-more{margin-top:.7rem;display:inline-flex;align-items:center;gap:.3rem;background:none;border:0;cursor:pointer;
+  color:var(--red);font-weight:700;font-size:.82rem;font-family:var(--font-tajawal),'Tajawal',sans-serif;padding:0}
+.rmn .rmn-pf-more svg{width:15px;height:15px;transition:transform .3s var(--ease)}
+.rmn .rmn-pf-node.is-expanded .rmn-pf-more svg{transform:rotate(180deg)}
+.rmn .rmn-pf-more:focus-visible{outline:2px solid var(--red);outline-offset:3px;border-radius:6px}
+
+/* deep-link highlight: a brief pulse when navigated to from the Payments menu */
+.rmn .rmn-pf-node.rmn-pf-flash .rmn-pf-card{animation:rmnPfFlash 1.6s var(--ease)}
+@keyframes rmnPfFlash{0%,100%{box-shadow:0 18px 40px -22px rgba(126,22,31,.4)}
+  25%{box-shadow:0 0 0 3px color-mix(in srgb,var(--red) 40%,transparent),0 18px 40px -22px rgba(126,22,31,.5)}}
+
+/* ≥760px: two-column cards alternating around a CENTERED thread */
+@media (min-width:760px){
+  .rmn .rmn-pf-track{--knot:50%;padding-inline-start:0}
+  .rmn .rmn-pf-rail,.rmn .rmn-pf-line{inset-inline-start:calc(50% - 1.25px)}
+  .rmn .rmn-pf-list{gap:0}
+  .rmn .rmn-pf-node{display:grid;grid-template-columns:1fr 1fr;padding-block:1.3rem}
+  .rmn .rmn-pf-knot{inset-inline-start:calc(50% - var(--knot-half));top:calc(50% - var(--knot-half))}
+  .rmn .rmn-pf-card{grid-column:1;margin-inline-end:50px}
+  .rmn .rmn-pf-node:nth-child(even) .rmn-pf-card{grid-column:2;margin-inline-end:0;margin-inline-start:50px}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .rmn .rmn-pf-node,.rmn .rmn-pf-line,.rmn .rmn-pf-knot,.rmn .rmn-pf-more svg,.rmn .rmn-pf-card{transition:none;animation:none}
+}

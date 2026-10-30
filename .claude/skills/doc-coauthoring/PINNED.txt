@@ -1,0 +1,5 @@
+Source: https://github.com/anthropics/skills
+Commit: dbd4588 (2026-10-09; the repository's latest commit when installed)
+Installed: 2026-10-28 for Supporting_Center (Phase 0 skills setup), to write the planning and design docs
+Copied: the single skill folder skills/doc-coauthoring, unchanged (SKILL.md is its only file). Checked by SHA-256 against the commit.
+License: the folder has no LICENSE.txt and SKILL.md has no license field. The repository README says many of its skills are Apache 2.0 and names only docx, pdf, pptx and xlsx as source-available; it does not state this skill's license on its own.

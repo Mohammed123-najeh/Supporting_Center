@@ -1,0 +1,38 @@
+/* The knowledge-workspace stage (rag-stage.tsx): the app window at its exact size,
+   its skeleton and the no-JS answer. Loaded with the page (the landing and
+   /ai-solutions), so the demo mounts into a frame that never moves. */
+
+/* ── the knowledge workspace window (rag-stage.tsx) ────────────────────────── */
+.rmn .rmn-rgw-stage{min-width:0;width:100%;display:grid;justify-items:center;gap:1.1rem}
+.rmn .rmn-rgw-win{--rgw-h:640px;--bar-h:40px;width:100%;border-radius:16px;overflow:hidden;background:var(--aic-bg);box-shadow:0 0 0 1px var(--aic-line-strong),0 44px 80px -50px rgba(60,20,24,.55),0 16px 30px -22px rgba(60,20,24,.3)}
+:root[data-theme="dark"] .rmn .rmn-rgw-win{box-shadow:0 0 0 1px rgba(255,255,255,.08),0 44px 80px -44px rgba(0,0,0,.85),0 16px 30px -18px rgba(0,0,0,.55)}
+.rmn .rmn-rgw-winbar{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;height:var(--bar-h);padding:0 14px;background:var(--aic-bg-2);border-bottom:1px solid var(--aic-line)}
+.rmn .rmn-rgw-dots{display:flex;gap:7px}
+.rmn .rmn-rgw-dots i{width:11px;height:11px;border-radius:50%;background:#FF5F57}
+.rmn .rmn-rgw-dots i + i{background:#FEBC2E}
+.rmn .rmn-rgw-dots i + i + i{background:#28C840}
+.rmn .rmn-rgw-url{display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:8px;background:var(--aic-bg);color:var(--aic-muted);font:500 12px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;white-space:nowrap}
+.rmn .rmn-rgw-url svg{width:11px;height:11px;color:var(--aic-ok)}
+.rmn .rmn-rgw-screen{position:relative;height:calc(var(--rgw-h) - var(--bar-h));contain:strict}
+@media (max-width:1099px){.rmn .rmn-rgw-win{--rgw-h:620px}}
+/* phones: as tall as the screen allows (within 560 to 640px), under a slim bar that
+   reads like a phone browser's: the address only */
+@media (max-width:760px){
+  .rmn .rmn-rgw-win{--rgw-h:600px;--bar-h:34px;border-radius:14px}
+  .rmn .rmn-rgw-dots{visibility:hidden}
+  .rmn .rmn-rgw-winbar{padding:0 8px}
+  .rmn .rmn-rgw-url{padding:4px 12px;font-size:11.5px}
+}
+@supports (height:100svh){@media (max-width:760px){.rmn .rmn-rgw-win{--rgw-h:clamp(560px,calc(100svh - 140px),640px)}}}
+/* before the island mounts */
+.rmn .rmn-rgw-skel{position:absolute;inset:0;display:grid;grid-template-columns:232px minmax(0,1fr) 280px;grid-template-rows:auto 1fr auto;font-size:13.5px}
+.rmn .rmn-rgw-skel .s{grid-column:1;grid-row:1 / -1;background:var(--aic-bg-2);border-inline-end:1px solid var(--aic-line)}
+.rmn .rmn-rgw-skel .h{grid-column:2;grid-row:1;height:3.6em;border-bottom:1px solid var(--aic-line)}
+.rmn .rmn-rgw-skel .c{grid-column:2;grid-row:3;height:5.2em;border-top:1px solid var(--aic-line)}
+.rmn .rmn-rgw-skel .r{grid-column:3;grid-row:1 / -1;background:var(--aic-bg-2);border-inline-start:1px solid var(--aic-line)}
+@media (max-width:1099px){.rmn .rmn-rgw-skel{grid-template-columns:200px minmax(0,1fr)}.rmn .rmn-rgw-skel .r{display:none}}
+@media (max-width:760px){
+  .rmn .rmn-rgw-skel{grid-template-columns:minmax(0,1fr)}
+  .rmn .rmn-rgw-skel .s{display:none}
+  .rmn .rmn-rgw-skel .h,.rmn .rmn-rgw-skel .c{grid-column:1}
+}

@@ -1,0 +1,20 @@
+/* LogoLoop (logo-loop.tsx). A static stylesheet: it used to be injected into
+   <head> after mount, so the marquee first rendered as a tall vertical list and
+   then collapsed — a layout shift for everything below it. */
+.rmn-logoloop{position:relative;--ll-gap:32px;--ll-h:28px}
+.rmn-logoloop__track{display:flex;width:max-content;will-change:transform;user-select:none}
+.rmn-logoloop__list{display:flex;align-items:center}
+.rmn-logoloop__item{flex:0 0 auto;margin-inline-end:var(--ll-gap);font-size:var(--ll-h);line-height:1}
+.rmn-logoloop__node{display:inline-flex;align-items:center}
+.rmn-logoloop__item img{height:var(--ll-h);width:auto;display:block;object-fit:contain;-webkit-user-drag:none;pointer-events:none}
+.rmn-logoloop--scale .rmn-logoloop__item{transition:transform .3s cubic-bezier(.22,1,.36,1)}
+@media (hover:hover){.rmn-logoloop--scale .rmn-logoloop__item:hover{transform:scale(1.12)}}
+.rmn-logoloop__link{display:inline-flex;align-items:center;text-decoration:none;border-radius:6px;transition:opacity .2s ease}
+.rmn-logoloop__link:hover{opacity:.85}
+.rmn-logoloop__link:focus-visible{outline:2px solid currentColor;outline-offset:2px}
+/* the loop is laid out LTR in every language (dir="ltr" on the root), so the
+   physical left/right fades always sit on the right edges */
+.rmn-logoloop--fade::before,.rmn-logoloop--fade::after{content:'';position:absolute;top:0;bottom:0;width:clamp(24px,10%,140px);pointer-events:none;z-index:2}
+.rmn-logoloop--fade::before{left:0;background:linear-gradient(to right,var(--ll-fade,#FDF4ED),transparent)}
+.rmn-logoloop--fade::after{right:0;background:linear-gradient(to left,var(--ll-fade,#FDF4ED),transparent)}
+@media (prefers-reduced-motion:reduce){.rmn-logoloop__track{transform:none!important}}

@@ -1,0 +1,5 @@
+Source: https://github.com/anthropics/skills
+Commit: dbd4588 (2026-10-09; the repository's latest commit when installed)
+Installed: 2026-10-28 for Supporting_Center (Phase 0 skills setup), for UI design and build
+Copied: the single skill folder skills/frontend-design, unchanged (SKILL.md, LICENSE.txt). Checked by SHA-256 against the commit.
+License: Apache 2.0 (LICENSE.txt).

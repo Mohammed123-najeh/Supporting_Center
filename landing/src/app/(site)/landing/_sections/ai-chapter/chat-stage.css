@@ -1,0 +1,63 @@
+/* The support-chat stage (chat-stage.tsx): the always-open Duo at its exact size,
+   the screen's skeleton and the no-JS scene. Loaded with the page, so the demo
+   mounts into a frame that never moves. */
+
+.rmn .rmn-aic-stage{min-width:0;width:100%;display:grid;justify-items:center}
+/* the demo's control sits in the device's corner, just under it */
+.rmn .rmn-dop > .rmn-aic-ctl{margin-top:.85rem}
+
+/* ── the always-open iPhone Duo (duo-open.tsx) ─────────────────────────────── */
+.rmn .rmn-dop{
+  --dop-base:min(54vw,720px); --dop-w:var(--dop-base);
+  position:relative;width:var(--dop-w);max-width:100%;
+  --rim:calc(var(--dop-w) * .009); --bez:calc(var(--dop-w) * .011);
+  --ro:calc(var(--dop-w) * .05); --rb:calc(var(--rim) + var(--bez));
+}
+@supports (width: round(down, 10px, 4px)){
+  /* a 4px-snapped width keeps the screen's text on whole pixels */
+  .rmn .rmn-dop{--dop-w:round(down, var(--dop-base), 4px)}
+}
+@media (max-width:1099px){.rmn .rmn-dop{--dop-base:min(86vw,680px)}}
+.rmn .rmn-dop-body{
+  position:relative;aspect-ratio:164.6/117.8;border-radius:var(--ro);
+  background:linear-gradient(135deg,var(--duo-frame-hi),var(--duo-frame) 38%,var(--duo-frame-lo));
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.4),0 42px 70px -40px rgba(60,20,24,.55),0 14px 26px -18px rgba(60,20,24,.32);
+}
+:root[data-theme="dark"] .rmn .rmn-dop-body{box-shadow:inset 0 0 0 1px rgba(255,255,255,.07),0 42px 70px -36px rgba(0,0,0,.85),0 14px 26px -16px rgba(0,0,0,.6)}
+/* the hinge, where it meets the frame */
+.rmn .rmn-dop-body::before,.rmn .rmn-dop-body::after{content:'';position:absolute;z-index:2;left:50%;width:calc(var(--dop-w) * .01);height:var(--rb);transform:translateX(-50%);background:linear-gradient(90deg,var(--duo-frame-lo),var(--duo-frame-hi),var(--duo-frame-lo))}
+.rmn .rmn-dop-body::before{top:0}
+.rmn .rmn-dop-body::after{bottom:0}
+.rmn .rmn-dop-screen{
+  position:absolute;inset:var(--rb);border-radius:calc(var(--ro) - var(--rb) * .6);overflow:hidden;
+  box-shadow:0 0 0 var(--bez) #0b0b0e;background:var(--aic-bg);container-type:inline-size;contain:layout paint style;
+}
+/* the crease: the faint shading a real foldable shows at rest, never a band */
+.rmn .rmn-dop-crease{position:absolute;z-index:3;pointer-events:none;top:var(--rb);bottom:var(--rb);left:50%;width:calc(var(--dop-w) * .024);transform:translateX(-50%);background:linear-gradient(90deg,transparent,rgba(0,0,0,.045) 40%,rgba(255,255,255,.05) 50%,rgba(0,0,0,.045) 60%,transparent)}
+:root[data-theme="dark"] .rmn .rmn-dop-crease{background:linear-gradient(90deg,transparent,rgba(0,0,0,.16) 40%,rgba(255,255,255,.035) 50%,rgba(0,0,0,.16) 60%,transparent)}
+/* Touch ID side button (right edge) and the inner display's camera */
+.rmn .rmn-dop-btn{position:absolute;right:calc(var(--dop-w) * -.004);top:20%;height:12%;width:calc(var(--dop-w) * .006);border-radius:0 3px 3px 0;background:linear-gradient(90deg,var(--duo-frame-lo),var(--duo-frame))}
+.rmn .rmn-dop-cam{position:absolute;z-index:4;left:75%;top:calc(var(--rb) + var(--dop-w) * .008);width:calc(var(--dop-w) * .013);aspect-ratio:1;transform:translateX(-50%);border-radius:50%;background:#0b0b0e;box-shadow:inset 0 0 0 1px rgba(255,255,255,.07)}
+/* phones: the open device stands in portrait, the crease runs across */
+@media (max-width:760px){
+  .rmn .rmn-dop{--dop-base:min(92vw,440px);--rim:calc(var(--dop-w) * .0126);--bez:calc(var(--dop-w) * .0154);--ro:calc(var(--dop-w) * .07)}
+  .rmn .rmn-dop-body{aspect-ratio:117.8/164.6}
+  .rmn .rmn-dop-body::before,.rmn .rmn-dop-body::after{left:auto;top:50%;bottom:auto;width:var(--rb);height:calc(var(--dop-w) * .014);transform:translateY(-50%);background:linear-gradient(180deg,var(--duo-frame-lo),var(--duo-frame-hi),var(--duo-frame-lo))}
+  .rmn .rmn-dop-body::before{left:0}
+  .rmn .rmn-dop-body::after{right:0}
+  .rmn .rmn-dop-crease{top:50%;bottom:auto;left:var(--rb);right:var(--rb);width:auto;height:calc(var(--dop-w) * .03);transform:translateY(-50%);background:linear-gradient(180deg,transparent,rgba(0,0,0,.045) 40%,rgba(255,255,255,.05) 50%,rgba(0,0,0,.045) 60%,transparent)}
+  :root[data-theme="dark"] .rmn .rmn-dop-crease{background:linear-gradient(180deg,transparent,rgba(0,0,0,.16) 40%,rgba(255,255,255,.035) 50%,rgba(0,0,0,.16) 60%,transparent)}
+  .rmn .rmn-dop-btn{top:calc(var(--dop-w) * -.0056);right:16%;width:17%;height:calc(var(--dop-w) * .0084);border-radius:3px 3px 0 0;background:linear-gradient(180deg,var(--duo-frame-lo),var(--duo-frame))}
+  .rmn .rmn-dop-cam{left:50%;top:calc(var(--rb) + var(--dop-w) * .014);width:calc(var(--dop-w) * .026)}
+}
+
+/* ── the chat screen before its island mounts: a quiet skeleton ────────────── */
+.rmn .rmn-aic-skel{position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto 1fr auto;font-size:clamp(10.5px,1.95cqi,14px)}
+.rmn .rmn-aic-skel .o{grid-column:1;grid-row:1 / -1;background:var(--aic-bg-2)}
+.rmn .rmn-aic-skel .h{grid-column:2;grid-row:1;height:5.3em;border-bottom:1px solid var(--aic-line)}
+.rmn .rmn-aic-skel .c{grid-column:2;grid-row:3;height:4.6em;border-top:1px solid var(--aic-line)}
+@media (max-width:760px){
+  .rmn .rmn-aic-skel{grid-template-columns:1fr;font-size:clamp(13.5px,4.4cqi,16px)}
+  .rmn .rmn-aic-skel .o{display:none}
+  .rmn .rmn-aic-skel .h,.rmn .rmn-aic-skel .c{grid-column:1}
+}

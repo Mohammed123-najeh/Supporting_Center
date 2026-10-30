@@ -1,0 +1,107 @@
+/* Structural/positioning rules for the offers bento grid — a FAITHFUL port of the
+   React Bits MagicBento reference layout (grid template, nth-child spans,
+   aspect-ratio, gaps, max-width, responsive breakpoints). Colors/borders/theme
+   live in site-css.ts under .rmn (brand-owned). Namespaced .rmn-bento-* to avoid
+   global collision. Only the theme differs from the reference; the layout matches
+   1:1. */
+
+.rmn-bento {
+  display: grid;
+  gap: 0.5em;
+  padding: 0.75em;
+  max-width: 54em;
+  margin-inline: auto;
+  font-size: clamp(1rem, 0.9rem + 0.5vw, 1.5rem);
+}
+
+/* ≤599px: single column (reference) */
+@media (max-width: 599px) {
+  .rmn-bento { grid-template-columns: 1fr; width: 90%; margin: 0 auto; padding: 0.5em; }
+}
+/* 600–1023px: 2 columns (reference) */
+@media (min-width: 600px) {
+  .rmn-bento { grid-template-columns: repeat(2, 1fr); }
+}
+/* ≥1024px: the reference's 4-column bento with the exact span map */
+@media (min-width: 1024px) {
+  .rmn-bento { grid-template-columns: repeat(4, 1fr); }
+  .rmn-bento > :nth-child(3) { grid-column: span 2; grid-row: span 2; }
+  .rmn-bento > :nth-child(4) { grid-column: 1 / span 2; grid-row: 2 / span 2; }
+  .rmn-bento > :nth-child(6) { grid-column: 4; grid-row: 3; }
+}
+
+.rmn-bento-cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  /* Content flows from the TOP (chip → title → summary → points → CTAs). We do NOT
+     use justify-content:space-between here — that stranded the chip at the very top
+     and the copy at the very bottom, leaving a big empty gap in the middle of every
+     tile. The large flagship cells (which have vertical slack) push their CTA block
+     to the bottom via `margin-top:auto` on .rmn-offer-ctas (see below), so they
+     fill cohesively without the dead gap. */
+  /* min-height keeps the reference's card proportions, but the cell GROWS to fit
+     content (our cards carry a chip + title + summary + two CTAs — taller than the
+     reference's sparse cards, so a hard aspect-ratio:4/3 clipped the buttons). The
+     span-3/span-4 flagship cells get more room via grid-row:span 2. */
+  min-height: 15em;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0; /* let the cell shrink to its column instead of overflowing */
+  padding: 1.25em;
+  overflow: hidden;
+  isolation: isolate; /* contain glow/particle layers to the cell */
+}
+/* Media cells are TALLER so the uploaded image/video (a full-bleed backdrop) reads
+   as a real media band, with the copy + compact CTAs seated over the scrim in the
+   lower third — not a thin sliver of image behind cramped text. Non-media cells
+   stay at the compact 15em. */
+.rmn-bento-cell:has(.rmn-bento-cell-media) { min-height: 19em; }
+@media (max-width: 599px) {
+  .rmn-bento-cell { min-height: 0; }
+}
+
+/* Offers-as-scroll-stack (mobile, ≤599px): each stack card is a bento cell. Give
+   it a comfortable min-height so a pinned card fills the pin area, and — when it
+   carries an uploaded image/video — a real media band (the backdrop is
+   position:absolute and contributes no height on its own, so a min-height:0 media
+   cell would collapse to just the text height and hide the image). */
+.rmn-stack .rmn-bento-cell { min-height: 13rem; }
+/* taller on mobile so the media band is prominent + the compact CTAs sit over the
+   lower scrim (matches the desktop media-cell emphasis) */
+.rmn-stack .rmn-bento-cell:has(.rmn-bento-cell-media) { min-height: 21rem; }
+
+/* When an offer HAS media it fills the cell as a real full-bleed backdrop (image
+   or video poster); a scrim (in site-css.ts) keeps the copy readable. Cells with
+   NO media render no backdrop at all — the caller passes null so this layer isn't
+   even in the DOM (clean cream face). */
+.rmn-bento-cell-media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.rmn-bento-cell-media img,
+.rmn-bento-cell-media video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* header (chip, pinned top) + content (title/summary/ctas, at the bottom),
+   mirroring the reference's card__header / card__content split. */
+.rmn-bento-cell-body {
+  position: relative;
+  z-index: 2; /* above media + spotlight ::before */
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  gap: 0.75em;
+}
+.rmn-bento-cell-head { display: flex; justify-content: flex-start; }
+/* content takes the remaining height so a flagship cell's CTA block can be pushed
+   to the bottom (margin-top:auto in site-css.ts); an even gap keeps the rhythm. */
+.rmn-bento-cell-content { display: flex; flex-direction: column; flex: 1; min-height: 0; min-width: 0; gap: 0.5rem; }

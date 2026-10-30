@@ -1,0 +1,96 @@
+/* Desktop "services showcase" — the refreshed offers scrolly design, RE-THEMED to
+   the Rummanah .rmn tokens (pomegranate/cream/olive; dark via the .rmn override).
+   Scoped under .rmn. Loaded only inside the desktop `{ssr:false}` chunk. Colours
+   are all var(--…) so light + dark hold. Every motion is transform/opacity; the
+   colour field is one pre-softened wash per offer, cross-faded on step change. */
+
+/* ── colour field: section-clipped, sticky (never over neighbours) ────────── */
+.rmn .rmn-svc{position:relative;z-index:1}
+/* Each wash is three radial gradients that already fade to transparent well
+   inside the box — soft by construction, so no blur filter (three blur(90px)
+   blobs were repainted on every scroll frame as their colours changed) and no
+   edge mask. --b1..3 are the offer's palette (space-separated RGB). The active
+   wash fades in; the drift is transform-only and pauses off screen (data-off). */
+.rmn .rmn-svc-bgwrap{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:clip}
+.rmn .rmn-svc-bg{position:sticky;top:0;height:100vh;overflow:hidden;opacity:0;transition:opacity .6s ease}
+.rmn .rmn-svc-bg.on{opacity:1}
+.rmn .rmn-svc-wash{position:absolute;inset:-12%;opacity:0;transition:opacity 1s ease;
+  background:
+    radial-gradient(34% 40% at 20% 22%,rgb(var(--b1,232 180 143) / .42),transparent 70%),
+    radial-gradient(30% 38% at 82% 26%,rgb(var(--b2,223 165 122) / .38),transparent 70%),
+    radial-gradient(40% 42% at 48% 86%,rgb(var(--b3,240 205 175) / .4),transparent 72%);
+  animation:rmnSvcDrift 30s ease-in-out infinite alternate}
+.rmn .rmn-svc-wash.on{opacity:1}
+:root[data-theme="dark"] .rmn .rmn-svc-wash.on{opacity:.75}
+@keyframes rmnSvcDrift{to{transform:translate3d(3%,2%,0) scale(1.06)}}
+
+/* ── stage: [steps | sticky visual] ───────────────────────────────────────── */
+.rmn .rmn-svc-stage{position:relative;z-index:1;display:grid;grid-template-columns:.9fr 1.05fr;gap:4rem;align-items:start}
+
+/* steps column with a continuous "thread" spine */
+.rmn .rmn-svc-steps{display:flex;flex-direction:column;position:relative}
+.rmn .rmn-svc-steps::before{content:'';position:absolute;inset-inline-start:0;top:0;bottom:0;width:2px;background:var(--dash);border-radius:2px}
+.rmn .rmn-svc-step{min-height:78vh;display:flex;flex-direction:column;justify-content:center;padding-inline-start:2rem;position:relative;
+  opacity:.34;transition:opacity .55s var(--ease)}
+.rmn .rmn-svc-step.is-active{opacity:1}
+.rmn .rmn-svc-step::before{content:'';position:absolute;inset-inline-start:0;top:19%;width:3px;height:62%;
+  background:linear-gradient(var(--red),var(--red-deep));border-radius:3px;transform:scaleY(0);transition:transform .55s var(--ease)}
+.rmn .rmn-svc-step.is-active::before{transform:scaleY(1)}
+.rmn .rmn-svc-chip{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;
+  background:color-mix(in srgb,var(--red) 10%,transparent);color:var(--red);margin-bottom:1.2rem;
+  font-family:var(--font-kufi),'Reem Kufi',sans-serif;font-weight:700;font-size:1.4rem;
+  transition:background .45s,color .45s,box-shadow .45s,transform .45s}
+.rmn .rmn-svc-step.is-active .rmn-svc-chip{background:var(--red);color:#FDF4ED;transform:translateY(-2px);box-shadow:0 14px 28px -12px rgba(126,22,31,.5)}
+.rmn .rmn-svc-eyebrow{font-weight:700;font-size:.78rem;letter-spacing:.24em;color:var(--olive-soft);text-transform:uppercase;margin-bottom:.5rem;display:block}
+.rmn .rmn-svc-step h3{font-size:clamp(1.5rem,2.6vw,2.1rem);line-height:1.3;margin-bottom:.7rem;transition:color .45s ease}
+.rmn .rmn-svc-step.is-active h3{color:var(--red)}
+.rmn .rmn-svc-step p{color:var(--olive-soft);font-size:1.02rem;line-height:1.85;max-width:42ch;margin-bottom:1rem}
+.rmn .rmn-svc-points{list-style:none;margin:0 0 1.3rem;padding:0;display:flex;flex-direction:column;gap:.4rem}
+.rmn .rmn-svc-points li{position:relative;padding-inline-start:1.3rem;color:var(--olive-soft);font-size:.92rem}
+.rmn .rmn-svc-points li::before{content:'✕';position:absolute;inset-inline-start:0;color:var(--pink);font-size:.72rem;top:.15rem}
+.rmn .rmn-svc-ctas{display:flex;flex-wrap:wrap;gap:.7rem}
+.rmn .rmn-svc-ctas .btn{padding:.6rem 1.3rem;font-size:.86rem}
+
+/* ── sticky glass visual ──────────────────────────────────────────────────── */
+.rmn .rmn-svc-panel{position:sticky;top:clamp(5rem,10vh,7rem)}
+.rmn .rmn-svc-card{position:relative;height:min(66vh,540px);border-radius:26px;overflow:hidden;padding:1.5rem;
+  background:linear-gradient(160deg,color-mix(in srgb,var(--card) 94%,transparent),color-mix(in srgb,var(--cream-2) 90%,transparent));
+  border:1px solid color-mix(in srgb,var(--pink) 30%,transparent);
+  box-shadow:0 26px 64px -26px rgba(126,22,31,.35)}
+.rmn .rmn-svc-head{position:relative;z-index:2;display:flex;align-items:center;gap:.9rem;margin-bottom:1.2rem}
+.rmn .rmn-svc-count{font-weight:700;font-size:.86rem;color:var(--red);letter-spacing:.05em;font-family:var(--font-kufi),'Reem Kufi',sans-serif;
+  background:color-mix(in srgb,var(--red) 10%,transparent);padding:.3rem .8rem;border-radius:999px}
+/* tatreez weave — a stitched thread that fills as you scroll */
+.rmn .rmn-svc-weave{position:relative;display:flex;align-items:center;gap:.75rem;margin-inline-start:auto;padding:0 .2rem}
+.rmn .rmn-svc-weave::before{content:'';position:absolute;top:50%;transform:translateY(-50%);inset-inline:0;height:2px;
+  background:color-mix(in srgb,var(--olive) 30%,transparent);z-index:0;border-radius:2px}
+.rmn .rmn-svc-weave::after{content:'';position:absolute;top:50%;margin-top:-1px;inset-inline:0;height:2px;
+  background:var(--red);z-index:0;border-radius:2px;transform:scaleX(var(--p,0));transform-origin:left;transition:transform .6s var(--ease)}
+:root[dir="rtl"] .rmn .rmn-svc-weave::after{transform-origin:right}
+.rmn .rmn-svc-weave i{position:relative;z-index:1;font-style:normal;font-size:.9rem;transform:scale(.9);
+  color:color-mix(in srgb,var(--olive) 55%,transparent);transition:color .45s ease,transform .45s ease}
+.rmn .rmn-svc-weave i.woven{color:var(--red);transform:scale(1.12)}
+
+.rmn .rmn-svc-visuals{position:relative;z-index:2;height:calc(100% - 3.4rem)}
+.rmn .rmn-svc-vis{position:absolute;inset:0;opacity:0;transform:translateY(16px) scale(.985);pointer-events:none;
+  display:flex;align-items:center;justify-content:center;transition:opacity .55s ease,transform .55s ease}
+/* layers only for the active visual and its neighbours */
+.rmn .rmn-svc-vis.near{will-change:opacity,transform}
+.rmn .rmn-svc-vis.on{opacity:1;transform:none;pointer-events:auto}
+.rmn .rmn-svc-vis img,.rmn .rmn-svc-vis video{width:100%;height:100%;object-fit:cover;border-radius:16px}
+.rmn .rmn-svc-vis video{opacity:0;transition:opacity .4s ease;position:absolute;inset:0}
+.rmn .rmn-svc-vis video.is-ready{opacity:1}
+.rmn .rmn-svc-mock{width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:1rem}
+
+@media (max-width:980px){
+  /* Safety fallback if this ever renders below the desktop gate: single column. */
+  .rmn .rmn-svc-stage{grid-template-columns:1fr;gap:1.5rem}
+  .rmn .rmn-svc-panel{position:static}
+  .rmn .rmn-svc-card{height:auto;aspect-ratio:5/4}
+  .rmn .rmn-svc-step{min-height:auto;padding:2rem 0}
+  .rmn .rmn-svc-steps::before,.rmn .rmn-svc-step::before{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .rmn .rmn-svc-wash{animation:none}
+  .rmn .rmn-svc-vis,.rmn .rmn-svc-step,.rmn .rmn-svc-chip,.rmn .rmn-svc-weave i{transition:none}
+}

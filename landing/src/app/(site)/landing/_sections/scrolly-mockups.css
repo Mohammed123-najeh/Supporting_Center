@@ -1,0 +1,75 @@
+/* The six built-in CSS mockups (scrolly-mockups.tsx) — token-based, so light and
+   dark hold. Moved here from the dead offers-scrolly.css, which nothing imported:
+   the showcase's mockups had been rendering unstyled. */
+.rmn .mk { width: 100%; font-size: clamp(.85rem, 1.1vw, 1rem); display: flex; flex-direction: column; gap: .9em; justify-content: center; }
+.rmn .mk-num { font-family: var(--font-kufi), "Reem Kufi", sans-serif; font-weight: 700; }
+.rmn .mk-cap { font-size: .72em; color: color-mix(in srgb, var(--ink) 60%, transparent); margin-top: .6em; }
+.rmn .mk-stat, .rmn .mk-chart, .rmn .mk-check, .rmn .mk-ship, .rmn .mk-phone, .rmn .mk-wa, .rmn .mk-badge {
+  background: color-mix(in srgb, var(--card) 96%, var(--ink) 4%);
+  border: 1px solid color-mix(in srgb, var(--ink) 10%, transparent);
+  border-radius: .8em;
+  box-shadow: var(--shadow);
+}
+/* dashboard */
+.rmn .mk-row3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: .6em; }
+.rmn .mk-stat { padding: .8em .65em; display: flex; flex-direction: column; gap: .2em; }
+.rmn .mk-stat .mk-num { font-size: 1.3em; color: var(--red); }
+.rmn .mk-lab { font-size: .72em; color: color-mix(in srgb, var(--ink) 60%, transparent); }
+.rmn .mk-chart { padding: 1em; }
+.rmn .mk-bars { display: flex; align-items: flex-end; gap: .5em; height: 7em; }
+.rmn .mk-bars i { flex: 1; border-radius: .35em .35em 0 0; background: linear-gradient(180deg, var(--red), color-mix(in srgb, var(--red) 65%, var(--pink))); }
+/* store */
+.rmn .mk-store { align-items: center; }
+.rmn .mk-phone { width: 11em; padding: .8em; }
+.rmn .mk-ph-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: .7em; }
+.rmn .mk-ph-logo { font-family: var(--font-kufi), "Reem Kufi", sans-serif; font-weight: 700; color: var(--red); font-size: .95em; }
+.rmn .mk-ph-cart svg { width: 1em; height: 1em; stroke: var(--ink); }
+.rmn .mk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .55em; }
+.rmn .mk-prod { background: color-mix(in srgb, var(--cream-2, var(--cream)) 90%, transparent); border-radius: .6em; padding: .45em; display: flex; flex-direction: column; gap: .35em; }
+.rmn .mk-img { height: 2.6em; border-radius: .4em; background: linear-gradient(135deg, color-mix(in srgb, var(--red) 30%, var(--cream)), color-mix(in srgb, var(--olive) 30%, var(--cream))); }
+.rmn .mk-img-b { background: linear-gradient(135deg, color-mix(in srgb, var(--pink) 45%, var(--cream)), color-mix(in srgb, var(--red) 30%, var(--cream))); }
+.rmn .mk-img-c { background: linear-gradient(135deg, color-mix(in srgb, var(--olive) 40%, var(--cream)), color-mix(in srgb, var(--olive-soft) 40%, var(--cream))); }
+.rmn .mk-img-d { background: linear-gradient(135deg, color-mix(in srgb, var(--olive-soft) 40%, var(--cream)), color-mix(in srgb, var(--pink) 40%, var(--cream))); }
+.rmn .mk-price { font-size: .72em; font-weight: 700; color: var(--red); }
+/* payments */
+.rmn .mk-check { padding: 1em; }
+.rmn .mk-check-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: .8em; }
+.rmn .mk-check-top span { color: color-mix(in srgb, var(--ink) 60%, transparent); font-size: .85em; }
+.rmn .mk-check-top .mk-num { font-size: 1.4em; color: var(--ink); }
+.rmn .mk-pms { display: flex; gap: .45em; flex-wrap: wrap; }
+.rmn .mk-pm { font-size: .72em; font-weight: 700; padding: .4em .7em; border-radius: .5em; background: color-mix(in srgb, var(--cream-2, var(--cream)) 90%, transparent); border: 1px solid color-mix(in srgb, var(--ink) 10%, transparent); color: var(--ink); }
+.rmn .mk-ship { padding: 1em; }
+.rmn .mk-track { position: relative; display: flex; align-items: center; justify-content: space-between; margin-bottom: .6em; }
+.rmn .mk-line { position: absolute; top: 50%; transform: translateY(-50%); inset-inline: .5em; height: 2px; background: color-mix(in srgb, var(--ink) 12%, transparent); z-index: 1; border-radius: 2px; overflow: hidden; }
+.rmn .mk-line b { display: block; height: 100%; width: 55%; background: var(--red); }
+.rmn .mk-track i { width: 1em; height: 1em; border-radius: 50%; background: color-mix(in srgb, var(--cream-2, var(--cream)) 85%, transparent); border: 2px solid color-mix(in srgb, var(--ink) 12%, transparent); position: relative; z-index: 2; }
+.rmn .mk-track i.on { background: var(--red); border-color: var(--red); }
+.rmn .mk-steps { display: flex; justify-content: space-between; font-size: .68em; color: color-mix(in srgb, var(--ink) 60%, transparent); }
+/* marketing */
+.rmn .mk-coupon { position: relative; background: linear-gradient(135deg, var(--red), color-mix(in srgb, var(--red) 70%, var(--pink))); color: #fff; border-radius: .9em; padding: 1.1em; display: flex; align-items: center; gap: 1em; box-shadow: var(--shadow); }
+.rmn .mk-cp-off { font-family: var(--font-kufi), "Reem Kufi", sans-serif; font-weight: 700; font-size: 2.1em; line-height: 1; }
+.rmn .mk-cp-lab { font-size: .9em; font-weight: 600; opacity: .95; }
+.rmn .mk-wa { padding: 1em; display: flex; flex-direction: column; gap: .55em; }
+.rmn .mk-wa-bubble { align-self: flex-start; background: color-mix(in srgb, var(--olive) 22%, var(--card)); color: var(--ink); font-size: .85em; font-weight: 600; padding: .55em .85em; border-radius: .85em .85em .85em .2em; }
+.rmn .mk-wa-tag { font-size: .72em; color: color-mix(in srgb, var(--ink) 60%, transparent); display: flex; align-items: center; gap: .4em; }
+.rmn .mk-wa-tag::before { content: ""; width: .55em; height: .55em; border-radius: 50%; background: var(--olive); }
+/* speed */
+.rmn .mk-speed { align-items: center; gap: 1.1em; }
+.rmn .mk-time { text-align: center; }
+.rmn .mk-time .mk-num { font-size: 3.2em; color: var(--red); line-height: 1; }
+.rmn .mk-time span { display: block; font-size: .8em; color: color-mix(in srgb, var(--ink) 60%, transparent); margin-top: .3em; }
+.rmn .mk-rings { display: flex; gap: 1em; }
+.rmn .mk-ring { width: 3.2em; height: 3.2em; border-radius: 50%; display: grid; place-items: center; font-family: var(--font-kufi), "Reem Kufi", sans-serif; font-weight: 700; color: var(--olive); background: conic-gradient(var(--olive) 92%, color-mix(in srgb, var(--olive) 15%, transparent) 0); position: relative; }
+.rmn .mk-ring::before { content: ""; position: absolute; inset: .36em; border-radius: 50%; background: var(--card); }
+.rmn .mk-ring span { position: relative; font-size: .9em; }
+.rmn .mk-speed .mk-cap { text-align: center; }
+/* security */
+.rmn .mk-host { align-items: center; gap: 1em; }
+.rmn .mk-shield { width: 4em; height: 4em; border-radius: 50%; display: grid; place-items: center; background: color-mix(in srgb, var(--red) 12%, transparent); color: var(--red); }
+.rmn .mk-shield svg { width: 2.1em; height: 2.1em; }
+.rmn .mk-badges { display: flex; flex-direction: column; gap: .5em; width: 100%; }
+.rmn .mk-badge { display: flex; align-items: center; gap: .5em; font-size: .82em; font-weight: 600; color: var(--ink); padding: .55em .75em; }
+.rmn .mk-badge::before { content: "✓"; color: var(--olive); font-weight: 700; }
+.rmn .mk-uptime { display: flex; gap: .25em; width: 100%; }
+.rmn .mk-uptime i { flex: 1; height: 1.3em; border-radius: .22em; background: var(--olive); opacity: .8; }
+.rmn .mk-uptime i:nth-child(7), .rmn .mk-uptime i:nth-child(12) { opacity: .4; }

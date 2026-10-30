@@ -1,0 +1,40 @@
+/* What every demo stage shares (demo-controls.tsx imports it): the paused state,
+   the screens' colour tokens and the controls under each demo. Loaded with the
+   page; the demos' own styles ride their lazy chunks. */
+
+/* a demo paused (its button, scrolled away, a hidden tab) holds every animation */
+.rmn [data-paused] *,.rmn [data-paused] *::before,.rmn [data-paused] *::after{animation-play-state:paused!important}
+
+/* the demos' screens (the Duo's display, the workspace window): their colour
+   tokens, shared by the skeletons, the islands and the no-JS views */
+.rmn .rmn-dop-screen,.rmn .rmn-rgw-win{
+  --aic-bg:#FBF8F4; --aic-bg-2:#F3EEE8; --aic-card:#FFFFFF; --aic-field:#FFFFFF;
+  --aic-ink:#1F1A17; --aic-muted:#5F5750; --aic-line:rgba(31,26,23,.09); --aic-line-strong:rgba(31,26,23,.18);
+  --aic-bot:#EFE9E2; --aic-me:#A6222C; --aic-accent:#A6222C; --aic-ring:rgba(166,34,44,.22);
+  --aic-note:#F6EEDC; --aic-note-ink:#5A4A2C; --aic-chip:rgba(31,26,23,.06);
+  --aic-ok:#15703C; --aic-ok-bg:#E3F4EA; --aic-hl:rgba(166,34,44,.10);
+  --aic-mark:#F6D0D5;
+}
+:root[data-theme="dark"] .rmn .rmn-dop-screen,:root[data-theme="dark"] .rmn .rmn-rgw-win{
+  --aic-bg:#141113; --aic-bg-2:#1A1618; --aic-card:#221D1F; --aic-field:#1E1A1C;
+  --aic-ink:#EFE8E1; --aic-muted:#A39A92; --aic-line:rgba(255,255,255,.08); --aic-line-strong:rgba(255,255,255,.16);
+  --aic-bot:#262022; --aic-accent:#F08A93; --aic-ring:rgba(240,138,147,.28);
+  --aic-note:#2A2318; --aic-note-ink:#D8C7A2; --aic-chip:rgba(255,255,255,.07);
+  --aic-ok:#6FD49A; --aic-ok-bg:rgba(111,212,154,.13); --aic-hl:rgba(240,138,147,.14);
+  --aic-mark:rgba(240,138,147,.3);
+}
+
+/* ── the demo's control, in the corner under it (demo-controls.tsx) ─────────── */
+.rmn .rmn-aic-ctl{display:flex;justify-content:flex-end;width:100%}
+.rmn .rmn-aic-ring{position:relative;display:grid;place-items:center;width:46px;height:46px;padding:0;border:0;border-radius:50%;background:color-mix(in srgb,var(--card) 90%,transparent);color:var(--red);cursor:pointer;box-shadow:0 8px 18px -12px rgba(60,20,24,.5);transition:background-color .2s,transform .15s}
+:root[data-theme="dark"] .rmn .rmn-aic-ring{box-shadow:0 8px 18px -10px rgba(0,0,0,.7)}
+/* the scene's parts around the button: lit once reached, the current one half lit */
+.rmn .rmn-aic-ring-p{position:absolute;inset:0;width:100%;height:100%;fill:none;stroke-width:2.6;stroke-linecap:round;pointer-events:none}
+.rmn .rmn-aic-ring-p .s{stroke:color-mix(in srgb,var(--red) 18%,transparent);transition:stroke .3s ease}
+.rmn .rmn-aic-ring-p .s[data-s="now"]{stroke:color-mix(in srgb,var(--red) 55%,transparent)}
+.rmn .rmn-aic-ring-p .s[data-s="done"]{stroke:var(--red)}
+.rmn .rmn-aic-ring svg:not(.rmn-aic-ring-p){position:relative;width:16px;height:16px}
+.rmn .rmn-aic-ring:active{transform:scale(.94)}
+.rmn .rmn-aic-ring:focus-visible{outline:2px dashed var(--red);outline-offset:3px}
+@media (hover:hover){.rmn .rmn-aic-ring:hover{background:color-mix(in srgb,var(--red) 9%,var(--card))}}
+:root:not([data-js]) .rmn .rmn-aic-ctl{visibility:hidden}

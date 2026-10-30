@@ -1,0 +1,475 @@
+/* Electronic payment on the iPhone Duo + Stripe (pay-duo-section.tsx).
+
+   Every selector starts `.rmn .rmn-spay…` / `.rmn .rmn-duo…`, so it beats the
+   inline SITE_CSS element rules (`.rmn h3`, `.rmn img`, `.rmn *` reset) whatever
+   the stylesheet order.
+
+   Motion model: use-scene-stepper writes data-scene (1–6) on .rmn-spay-stage.
+   Each [data-scene] rule sets the TARGET of every moving part as a custom
+   property, together with that scene's own durations and delays; each element
+   reads them in ONE transform/opacity declaration + transition. A transition
+   uses the destination style's timing, so scrolling forward and back are both
+   choreographed, and a fast flick retargets straight to the final scene. Only
+   transform and opacity ever animate. */
+
+/* Registered so the width computes to px where it is set: the device's bezels
+   and radii derive from it inside the faces, which are size containers of
+   their own (an unregistered value would resolve cqi/% against each face). */
+@property --duo-w{syntax:'<length>';inherits:true;initial-value:0px}
+
+/* ── section, band, stage ─────────────────────────────────────────────────── */
+.rmn .rmn-spay{
+  padding:5.5rem 0 0;
+  /* the Duo frame colours (--duo-frame*) are site tokens in site-css.ts: the AI
+     chapter's always-open Duo shares them */
+  --duo-w:min(46vw, 620px);
+  --zones:6; --zone:45svh;
+}
+@supports (width: round(down, 10px, 4px)){
+  /* a 4px-snapped width keeps the open state's text on whole pixels */
+  .rmn .rmn-spay{--duo-w:round(down, min(46vw, 620px), 4px)}
+}
+.rmn .rmn-spay .section-head{margin-bottom:0}
+
+/* The scroll track: one 100svh sticky stage + one zone per scene. Zone 1 also
+   covers the approach (from the band top to the centre line). */
+.rmn .rmn-spay-band{position:relative;height:calc(100svh + var(--zones) * var(--zone))}
+.rmn .rmn-spay-zone{position:absolute;inset-inline-start:0;width:1px;top:calc(50svh + var(--z) * var(--zone));height:var(--zone);pointer-events:none}
+.rmn .rmn-spay-zone[data-zone="0"]{top:0;height:calc(50svh + var(--zone))}
+.rmn .rmn-spay-stage{position:sticky;top:0;height:100svh;display:flex;align-items:center;padding-top:calc(var(--nav-h) + .5rem)}
+.rmn .rmn-spay-inner{width:min(1120px,92%);margin-inline:auto;display:grid;grid-template-columns:minmax(270px,360px) minmax(0,1fr);gap:clamp(1.5rem,4vw,4rem);align-items:center}
+
+/* ── rail ─────────────────────────────────────────────────────────────────── */
+.rmn .rmn-spay-rail{min-width:0}
+/* the six stages share one grid cell: switching scenes never moves the layout */
+.rmn .rmn-spay-steps{display:grid;list-style:none}
+.rmn .rmn-spay-step{grid-area:1/1;opacity:0;transform:translate3d(0,12px,0);transition:opacity .35s ease,transform .5s var(--ease-out)}
+.rmn .rmn-spay-stage[data-scene="1"] .rmn-spay-step[data-step="1"],
+.rmn .rmn-spay-stage[data-scene="2"] .rmn-spay-step[data-step="2"],
+.rmn .rmn-spay-stage[data-scene="3"] .rmn-spay-step[data-step="3"],
+.rmn .rmn-spay-stage[data-scene="4"] .rmn-spay-step[data-step="4"],
+.rmn .rmn-spay-stage[data-scene="5"] .rmn-spay-step[data-step="5"],
+.rmn .rmn-spay-stage[data-scene="6"] .rmn-spay-step[data-step="6"]{opacity:1;transform:none;transition-delay:.12s}
+.rmn .rmn-spay-count{display:inline-block;font-size:.85rem;font-weight:700;color:var(--olive-soft);letter-spacing:.04em}
+.rmn .rmn-spay-step h3{display:block;font-size:clamp(1.6rem,2.7vw,2.4rem);font-weight:700;line-height:1.15;margin:.4rem 0 .7rem}
+:root[dir="rtl"] .rmn .rmn-spay-step h3{line-height:1.45}
+.rmn .rmn-spay-step p{color:var(--olive-soft);line-height:1.75;max-width:30rem}
+.rmn .rmn-spay-prog{height:3px;margin-top:1.4rem;border-radius:3px;background:color-mix(in srgb,var(--red) 18%,transparent);overflow:hidden}
+.rmn .rmn-spay-prog span{display:block;height:100%;background:var(--red);transform-origin:left;transform:scaleX(calc(var(--scene-i) / 5));transition:transform .7s var(--ease-out)}
+:root[dir="rtl"] .rmn .rmn-spay-prog span{transform-origin:right}
+.rmn .rmn-spay-cta{display:flex;flex-wrap:wrap;gap:.8rem;margin-top:1.5rem}
+.rmn .rmn-spay-stripe{display:inline-flex;margin-top:1.3rem;border-radius:6px}
+.rmn .rmn-spay-stripe img{height:30px;width:auto}
+.rmn .rmn-spay-stripe .on-dark,
+:root[data-theme="dark"] .rmn .rmn-spay-stripe .on-light{display:none}
+:root[data-theme="dark"] .rmn .rmn-spay-stripe .on-dark{display:block}
+.rmn .rmn-spay-marks{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:1rem;list-style:none}
+:root[dir="rtl"] .rmn .rmn-spay .rmn-spay-marks{justify-content:flex-end}
+.rmn .rmn-spay-marks li{height:26px;min-width:42px;padding:0 .45rem;border-radius:6px;background:#fff;border:1px solid rgba(20,20,30,.1);display:inline-flex;align-items:center;justify-content:center;gap:2px;font:italic 800 .74rem/1 Arial,Helvetica,sans-serif;color:#1434CB}
+.rmn .rmn-spay-marks .mk-mc svg{height:17px;width:auto}
+.rmn .rmn-spay-marks .mk-amex{background:#016FD0;border-color:#016FD0;color:#fff;font-style:normal;letter-spacing:.03em}
+.rmn .rmn-spay-marks .mk-apple,.rmn .rmn-spay-marks .mk-gpay{font-style:normal;font-weight:600;color:#000}
+.rmn .rmn-spay-marks .mk-apple svg{height:13px;width:auto}
+.rmn .rmn-spay-marks .mk-gpay b{color:#4285F4;font-weight:800;margin-inline-end:1px}
+.rmn .rmn-spay-marks .mk-gpay span{color:#5f6368}
+.rmn .rmn-spay-marks .mk-link{background:#00D66F;border-color:#00D66F;color:#011E0F;font-style:normal;font-weight:800}
+/* the marks also render outside the band (PaymentMethods on /electronic-payment) */
+.rmn .rmn-spay-marks .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.rmn .rmn-spay-trust{display:flex;align-items:center;gap:.45rem;margin-top:1rem;font-size:.85rem;font-weight:700;color:var(--red)}
+.rmn .rmn-spay-trust svg{width:1em;height:1em;flex:none}
+.rmn .rmn-spay-hint{display:flex;align-items:center;gap:.4rem;margin-top:1rem;font-size:.82rem;color:var(--olive-soft);opacity:0;transition:opacity .4s}
+.rmn .rmn-spay-hint svg{width:1rem;height:1rem}
+.rmn .rmn-spay-stage[data-scene="1"] .rmn-spay-hint{opacity:1}
+.rmn .rmn-spay.is-live .rmn-spay-stage[data-scene="1"] .rmn-spay-hint svg{animation:rmnSpayBob 1.6s ease-in-out infinite}
+@keyframes rmnSpayBob{50%{transform:translateY(4px)}}
+
+/* ── the visual: card + Duo in one cell, always LTR ───────────────────────── */
+.rmn .rmn-spay-visual{position:relative;display:grid;place-items:center;height:min(620px,calc(100svh - var(--nav-h) - 3rem));min-width:0}
+.rmn .rmn-spay-visual > *{grid-area:1/1}
+
+/* ── Stripe Checkout card ─────────────────────────────────────────────────── */
+.rmn .rmn-spay-card{display:flex;align-items:stretch;gap:3%;width:min(600px,100%);font:400 clamp(11px,1.55svh,14px)/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:#30313d}
+.rmn .rmn-spay-sum{flex:0 0 42%;display:flex;flex-direction:column;gap:1em;padding:1.8em 1.5em;border-radius:1em;background:#F6F6F9;box-shadow:0 18px 40px -28px rgba(20,20,40,.35);transform:translate3d(0,var(--sum-y),0);opacity:var(--sum-o);transition:transform var(--sum-t) var(--ease-out) var(--sum-d),opacity var(--sum-t) ease var(--sum-d)}
+.rmn .rmn-spay-merchant{display:flex;align-items:center;gap:.6em;font-weight:600}
+.rmn .rmn-spay-merchant img{width:2.2em;height:2.2em;border-radius:50%;background:#fff;object-fit:contain;padding:.18em;box-shadow:0 0 0 1px rgba(0,0,0,.06)}
+.rmn .rmn-spay-lead span{display:block;color:#6a6a78;font-size:.9em}
+.rmn .rmn-spay-lead b{display:block;font-size:2.1em;font-weight:700;letter-spacing:-.01em;color:#1a1a24;line-height:1.15}
+.rmn .rmn-spay-thumb{border-radius:.6em;overflow:hidden;aspect-ratio:4/3;background:#ececf2}
+.rmn .rmn-spay-thumb img{width:100%;height:100%;object-fit:cover}
+.rmn .rmn-spay-item{display:flex;justify-content:space-between;font-weight:600}
+.rmn .rmn-spay-rows{margin-top:auto;display:grid;gap:.45em;font-size:.9em;color:#6a6a78;border-top:1px solid #e4e4ea;padding-top:.8em}
+.rmn .rmn-spay-rows span{display:flex;justify-content:space-between}
+.rmn .rmn-spay-rows i{font-style:normal}
+.rmn .rmn-spay-rows b{font-weight:500;color:#30313d}
+.rmn .rmn-spay-rows .tot{font-weight:700;color:#1a1a24;border-top:1px solid #e4e4ea;padding-top:.5em}
+.rmn .rmn-spay-rows .tot b{font-weight:700}
+
+.rmn .rmn-spay-pay{flex:0 0 55%;position:relative;padding:1.6em 1.5em 1.3em;border-radius:1em;background:#fff;box-shadow:0 34px 70px -34px rgba(126,22,31,.38),0 12px 30px -18px rgba(0,0,0,.2);transform:translate3d(var(--pay-x),0,0) scale(var(--pay-s));opacity:var(--pay-o);transition:transform var(--pay-t) cubic-bezier(.22,1,.36,1) var(--pay-d),opacity var(--pay-t) ease var(--pay-d)}
+:root[data-theme="dark"] .rmn .rmn-spay-pay{box-shadow:0 34px 70px -30px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.06)}
+.rmn .rmn-spay-form{opacity:calc(1 - var(--done));transition:opacity .45s ease var(--done-d)}
+.rmn .rmn-spay-express{display:grid;grid-template-columns:1fr 1fr;gap:.6em}
+.rmn .rmn-spay-express span{display:flex;align-items:center;justify-content:center;gap:.2em;height:2.7em;border-radius:.45em;font-weight:600}
+.rmn .rmn-spay-express .x-apple{background:#000;color:#fff}
+.rmn .rmn-spay-express .x-apple svg{height:1.05em;width:auto;margin-bottom:.12em}
+.rmn .rmn-spay-express .x-link{background:#00D66F;color:#011E0F}
+.rmn .rmn-spay-express .x-link b{font-weight:800;margin-inline-start:.2em}
+.rmn .rmn-spay-or{display:flex;align-items:center;gap:.8em;margin:1em 0 .1em;color:#8d8d99;font-size:.86em}
+.rmn .rmn-spay-or::before,.rmn .rmn-spay-or::after{content:'';flex:1;height:1px;background:#e4e4ea}
+.rmn .rmn-spay-g{display:block;margin-top:.85em}
+.rmn .rmn-spay-g .lab{display:block;font-size:.86em;font-weight:500;margin-bottom:.35em}
+.rmn .rmn-spay-box{display:block;border:1px solid #e0e0e6;border-radius:.45em;overflow:hidden;box-shadow:0 1px 1px rgba(0,0,0,.03)}
+.rmn .rmn-spay-f{position:relative;display:flex;align-items:center;height:2.55em;padding:0 .8em;white-space:nowrap;overflow:hidden}
+.rmn .rmn-spay-box > .rmn-spay-f + .rmn-spay-f,.rmn .rmn-spay-box > .rmn-spay-split{border-top:1px solid #e0e0e6}
+.rmn .rmn-spay-split{display:flex}
+.rmn .rmn-spay-split .rmn-spay-f{flex:1 1 0;min-width:0}
+.rmn .rmn-spay-split .rmn-spay-f + .rmn-spay-f{border-left:1px solid #e0e0e6}
+/* placeholder → value, one field after another (180 ms apart in scene 3) */
+.rmn .rmn-spay-f i,.rmn .rmn-spay-f b{transition-delay:calc(var(--fill-d) + var(--i) * var(--fill-step))}
+.rmn .rmn-spay-f i{position:absolute;left:.8em;font-style:normal;color:#a3a3ad;opacity:calc(1 - var(--fill));transition-property:opacity;transition-duration:var(--fill-t)}
+.rmn .rmn-spay-f b{font-weight:400;color:#30313d;opacity:var(--fill);transform:translate3d(calc((1 - var(--fill)) * -6px),0,0);transition-property:opacity,transform;transition-duration:var(--fill-t)}
+.rmn .rmn-spay-f.is-set b{opacity:1;transform:none}
+.rmn .rmn-spay-f.is-select::after{content:'';position:absolute;right:.95em;top:50%;width:.42em;height:.42em;margin-top:-.32em;border:solid #8d8d99;border-width:0 1.5px 1.5px 0;transform:rotate(45deg)}
+/* a pomegranate focus ring sweeps over each field as it fills */
+.rmn .rmn-spay-f::before{content:'';position:absolute;inset:0;box-shadow:inset 0 0 0 2px rgba(166,34,44,.5);opacity:0;pointer-events:none}
+.rmn .rmn-spay-stage[data-scene="3"] .rmn-spay-f::before{animation:rmnSpayFocus .55s ease calc(.3s + var(--i) * 180ms) both}
+@keyframes rmnSpayFocus{30%{opacity:1}100%{opacity:0}}
+.rmn .rmn-spay-brands{position:absolute;right:.6em;top:50%;display:flex;gap:.25em;transform:translateY(-50%)}
+.rmn .rmn-spay-brands em{display:grid;place-items:center;height:1.35em;min-width:2.1em;padding:0 .2em;border-radius:.22em;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.1);font:italic 800 .62em/1 Arial,Helvetica,sans-serif;color:#1434CB;transition:opacity .35s ease var(--brand-d),transform .45s var(--ease-out) var(--brand-d)}
+.rmn .rmn-spay-brands .m-mc,.rmn .rmn-spay-brands .m-amex{opacity:calc(1 - var(--brand) * .8)}
+.rmn .rmn-spay-brands .m-mc svg{height:1.1em;width:auto}
+.rmn .rmn-spay-brands .m-amex{background:#016FD0;color:#fff;font-style:normal}
+.rmn .rmn-spay-brands .m-visa{transform:scale(calc(1 + var(--brand) * .14))}
+.rmn .rmn-spay-btn{display:flex;align-items:center;justify-content:center;gap:.45em;height:3em;margin-top:1.1em;border-radius:.45em;background:#A6222C;color:#fff;font-weight:600;box-shadow:0 8px 18px -10px rgba(126,22,31,.7)}
+.rmn .rmn-spay-btn svg{width:.95em;height:.95em}
+.rmn .rmn-spay-powered{display:flex;justify-content:center;margin-top:.9em}
+.rmn .rmn-spay-powered img{height:1.9em;width:auto}
+/* the card's own success layer (scene 6, once the Duo has gone) */
+.rmn .rmn-spay-done{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.6em;padding:2em;text-align:center;opacity:var(--done);transition:opacity .6s ease var(--done-d)}
+.rmn .rmn-spay-done .logo{width:4.2em;height:4.2em;object-fit:contain}
+.rmn .rmn-spay-done .badge{display:grid;place-items:center;width:3.4em;height:3.4em;border-radius:50%;background:#E8F7EE;color:#1A9E55;transform:scale(calc(.6 + var(--done) * .4));transition:transform .6s cubic-bezier(.34,1.56,.64,1) calc(var(--done-d) + .15s)}
+.rmn .rmn-spay-done .badge svg{width:56%;height:56%}
+.rmn .rmn-spay-done > b{font-size:1.35em;font-weight:700;color:#1a1a24}
+.rmn .rmn-spay-done .sub{color:#6a6a78;font-size:.92em;max-width:22em}
+.rmn .rmn-spay-done .receipt{display:flex;align-items:center;gap:.8em;width:100%;max-width:22em;margin-top:.4em;padding:.7em .8em;border:1px solid #e4e4ea;border-radius:.6em;text-align:start}
+.rmn .rmn-spay-done .receipt img{width:2.6em;height:2.6em;border-radius:.4em;object-fit:cover}
+.rmn .rmn-spay-done .receipt span{flex:1;display:grid}
+.rmn .rmn-spay-done .receipt span b{font-weight:600}
+.rmn .rmn-spay-done .receipt i{font-style:normal;color:#6a6a78;font-size:.86em}
+.rmn .rmn-spay-done .receipt em{font-style:normal;font-weight:700;color:#1A9E55}
+.rmn .rmn-spay-done .secured{display:flex;align-items:center;gap:.35em;margin-top:.3em;font-size:.86em;font-weight:600;color:#A6222C}
+.rmn .rmn-spay-done .secured svg{width:.9em;height:.9em}
+
+/* ── iPhone Duo ───────────────────────────────────────────────────────────── */
+.rmn .rmn-duo-place{position:relative;width:var(--duo-w);pointer-events:none}
+.rmn .rmn-duo-lift{position:relative;transform:translate3d(0,var(--duo-y),0);opacity:var(--duo-o);transition:transform var(--duo-t) var(--duo-e) var(--duo-d),opacity calc(var(--duo-t) * .7) ease var(--duo-d)}
+.rmn .rmn-duo-shadow{position:absolute;left:4%;right:4%;bottom:-9%;height:16%;border-radius:50%;background:radial-gradient(closest-side,rgba(40,16,16,.38),transparent);transform:scaleX(var(--sh-x));transition:transform var(--leaf-t) var(--leaf-e) var(--leaf-d)}
+:root[data-theme="dark"] .rmn .rmn-duo-shadow{background:radial-gradient(closest-side,rgba(0,0,0,.6),transparent)}
+.rmn .rmn-duo-stage{position:relative;perspective:calc(var(--duo-w) * 3);perspective-origin:50% 35%}
+.rmn .rmn-duo{
+  position:relative;width:100%;aspect-ratio:164.6/117.8;transform-style:preserve-3d;
+  transform:translate3d(var(--duo-x),0,0);transition:transform var(--leaf-t) var(--leaf-e) var(--leaf-d);
+  --rim:calc(var(--duo-w) * .009); --bez:calc(var(--duo-w) * .011);
+  --ro:calc(var(--duo-w) * .05); --rh:calc(var(--duo-w) * .008); --rb:calc(var(--rim) + var(--bez));
+}
+.rmn .rmn-duo-base,.rmn .rmn-duo-leaf{position:absolute;top:0;bottom:0;width:50%}
+.rmn .rmn-duo-base{left:50%}
+.rmn .rmn-duo-leaf{left:0;transform-style:preserve-3d;transform-origin:100% 50%;transform:translateZ(1px) rotateY(var(--leaf));transition:transform var(--leaf-t) var(--leaf-e) var(--leaf-d)}
+.rmn .rmn-spay.is-live .rmn-duo,.rmn .rmn-spay.is-live .rmn-duo-leaf{will-change:transform}
+.rmn .rmn-duo-face{position:absolute;inset:0;overflow:hidden;container-type:inline-size;background:linear-gradient(135deg,var(--duo-frame-hi),var(--duo-frame) 38%,var(--duo-frame-lo));-webkit-backface-visibility:hidden;backface-visibility:hidden}
+/* The faces also sit a hair apart in depth, so the one facing the viewer is in
+   front even where backface culling fails (WebKit with rounded, clipped faces). */
+.rmn .rmn-duo-in{border-radius:var(--ro) 0 0 var(--ro);transform:translateZ(.5px)}
+.rmn .rmn-duo-pane{border-radius:0 var(--ro) var(--ro) 0}
+/* the outer face, seen from behind the leaf: its left is the hinge side */
+.rmn .rmn-duo-out{border-radius:var(--rh) var(--ro) var(--ro) var(--rh);transform:rotateY(180deg) translateZ(.5px)}
+/* lighting: a face darkens as it turns away (opacity follows the fold timing) */
+.rmn .rmn-duo-in::after,.rmn .rmn-duo-out::after{content:'';position:absolute;inset:0;z-index:5;pointer-events:none;background:linear-gradient(90deg,rgba(10,8,12,.5),rgba(10,8,12,.15));transition:opacity var(--leaf-t) var(--leaf-e) var(--leaf-d)}
+.rmn .rmn-duo-in::after{opacity:var(--shade-in)}
+.rmn .rmn-duo-out::after{opacity:var(--shade-out);background:linear-gradient(270deg,rgba(10,8,12,.5),rgba(10,8,12,.15))}
+/* the crease, visible while open */
+.rmn .rmn-duo-pane::before,.rmn .rmn-duo-in::before{content:'';position:absolute;top:0;bottom:0;width:4%;z-index:4;pointer-events:none;opacity:var(--crease);transition:opacity var(--leaf-t) ease var(--leaf-d)}
+.rmn .rmn-duo-pane::before{left:0;background:linear-gradient(90deg,rgba(0,0,0,.13),transparent)}
+.rmn .rmn-duo-in::before{right:0;background:linear-gradient(270deg,rgba(0,0,0,.13),transparent)}
+/* the leaf's free edge, so it never vanishes edge-on mid-fold */
+.rmn .rmn-duo-edge{position:absolute;top:3%;bottom:3%;left:0;width:calc(var(--duo-w) * .014);transform-origin:0 50%;transform:rotateY(90deg);border-radius:3px;background:linear-gradient(90deg,var(--duo-frame-lo),var(--duo-frame-hi),var(--duo-frame-lo))}
+/* side button (Touch ID) on the right edge of the base + its pulse ring */
+.rmn .rmn-duo-btn{position:absolute;right:calc(var(--duo-w) * -.004);top:23%;height:13%;width:calc(var(--duo-w) * .006);border-radius:0 3px 3px 0;background:linear-gradient(90deg,var(--duo-frame-lo),var(--duo-frame))}
+.rmn .rmn-duo-ring{position:absolute;right:calc(var(--duo-w) * -.03);top:19.5%;height:20%;width:calc(var(--duo-w) * .06);border-radius:999px;border:2px solid #E0616A;opacity:0;transform:scale(.7)}
+.rmn .rmn-spay-stage[data-scene="5"] .rmn-duo-ring{animation:rmnDuoPulse 1.1s ease-out 1.3s 2}
+@keyframes rmnDuoPulse{0%{opacity:0;transform:scale(.7)}30%{opacity:.95}100%{opacity:0;transform:scale(1.35)}}
+
+/* screens: a white display inside a black bezel, sized in the face's cqi */
+.rmn .rmn-duo .d-screen{position:absolute;inset:var(--rb);border-radius:calc(var(--ro) - var(--rb) * .6);overflow:hidden;background:#fff;box-shadow:0 0 0 var(--bez) #0c0c10;font:400 4.3cqi/1.3 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:#1d1d1f;text-align:left}
+.rmn .rmn-duo-in .d-screen{right:0;border-radius:calc(var(--ro) - var(--rb) * .6) 0 0 calc(var(--ro) - var(--rb) * .6)}
+.rmn .rmn-duo-pane .d-screen{left:0;border-radius:0 calc(var(--ro) - var(--rb) * .6) calc(var(--ro) - var(--rb) * .6) 0}
+.rmn .rmn-duo-out .d-screen{border-radius:calc(var(--rh) * 1.4) calc(var(--ro) - var(--rb) * .6) calc(var(--ro) - var(--rb) * .6) calc(var(--rh) * 1.4)}
+.rmn .rmn-duo .d-status{display:flex;justify-content:space-between;align-items:center;height:2.6em;padding:0 1.5em;font-size:.82em;font-weight:600}
+.rmn .rmn-duo .g-status{height:.95em;width:auto}
+.rmn .rmn-duo .d-punch{position:absolute;top:.95em;left:50%;width:1.1em;height:1.1em;margin-left:-.55em;border-radius:50%;background:#0c0c10;z-index:3}
+.rmn .rmn-duo .d-body{display:flex;flex-direction:column;gap:.6em;padding:.3em 1.3em 1.2em}
+.rmn .rmn-duo .d-merchant{display:flex;align-items:center;gap:.5em;font-weight:600;font-size:.92em}
+.rmn .rmn-duo .d-merchant img{width:1.9em;height:1.9em;border-radius:50%;background:#fff;object-fit:contain;padding:.15em;box-shadow:0 0 0 1px rgba(0,0,0,.07)}
+.rmn .rmn-duo .d-prod{border-radius:.8em;overflow:hidden;aspect-ratio:4/3;background:#f0f0f3}
+.rmn .rmn-duo .d-prod-big{aspect-ratio:5/4}
+.rmn .rmn-duo .d-outer .d-prod{aspect-ratio:16/10}
+.rmn .rmn-duo .d-outer .d-body{gap:.5em}
+.rmn .rmn-duo .d-prod img{width:100%;height:100%;object-fit:cover}
+.rmn .rmn-duo .d-title{font-weight:700;font-size:1.15em;line-height:1.2}
+.rmn .rmn-duo .d-sub{color:#6e6e73;font-size:.85em}
+.rmn .rmn-duo .d-price{font-weight:700;font-size:1.3em;color:#A6222C}
+.rmn .rmn-duo .d-note{font-size:.8em;color:#1A8A4C;font-weight:600}
+.rmn .rmn-duo .d-btns{display:grid;gap:.45em}
+.rmn .rmn-duo .d-btn{display:flex;align-items:center;justify-content:center;gap:.2em;height:2.5em;border-radius:.65em;font-weight:600;font-size:.95em}
+.rmn .rmn-duo .d-btn svg{height:1em;width:auto;margin-bottom:.1em}
+.rmn .rmn-duo .d-apple{background:#000;color:#fff}
+.rmn .rmn-duo .d-link{background:#00D66F;color:#011E0F}
+.rmn .rmn-duo .d-link b{font-weight:800;margin-left:.2em}
+.rmn .rmn-duo .d-paybtn{background:#A6222C;color:#fff}
+.rmn .rmn-duo .d-paybtn .g-lock{height:.85em;margin:0 .15em 0 0}
+.rmn .rmn-duo .d-or{text-align:center;color:#8e8e93;font-size:.8em}
+.rmn .rmn-duo .d-visa{font:italic 800 .7em/1 Arial,Helvetica,sans-serif;color:#1434CB;padding:.25em .35em;border-radius:.25em;box-shadow:0 0 0 1px rgba(0,0,0,.12)}
+
+/* outer display: order → (phones, scene 3) three fields fill → Paid */
+.rmn .rmn-duo .d-swap{display:grid}
+.rmn .rmn-duo .d-swap > *{grid-area:1/1}
+.rmn .rmn-duo .d-buy{display:grid;gap:.6em;opacity:calc(1 - var(--ofill));transition:opacity .4s ease var(--ofill-d)}
+.rmn .rmn-duo .d-oform{display:grid;gap:.4em;opacity:var(--ofill);transition:opacity .4s ease var(--ofill-d)}
+.rmn .rmn-duo .d-of{position:relative;display:flex;align-items:center;height:2.2em;padding:0 .7em;border:1px solid #e0e0e6;border-radius:.5em;font-size:.85em;white-space:nowrap;overflow:hidden}
+.rmn .rmn-duo .d-of i,.rmn .rmn-duo .d-of b{transition:opacity .35s ease calc(var(--ofill-d) + .35s + var(--i) * var(--ofill-step))}
+.rmn .rmn-duo .d-of i{position:absolute;left:.7em;font-style:normal;color:#a3a3ad;opacity:calc(1 - var(--ofill))}
+.rmn .rmn-duo .d-of b{font-weight:400;opacity:var(--ofill)}
+.rmn .rmn-duo .d-of .d-visa{position:absolute;right:.5em}
+.rmn .rmn-duo .d-paid{position:absolute;inset:0;z-index:4;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.35em;background:#fff;opacity:var(--paid);transition:opacity .5s ease var(--paid-d)}
+.rmn .rmn-duo .d-paid-ic{display:grid;place-items:center;width:3.4em;height:3.4em;border-radius:50%;background:#1A9E55;color:#fff;margin-bottom:.3em}
+.rmn .rmn-duo .d-paid-ic svg{width:55%;height:55%}
+.rmn .rmn-duo .d-paid b{font-size:1.6em;font-weight:700}
+.rmn .rmn-duo .d-paid-amt{font-size:1.25em;font-weight:600}
+.rmn .rmn-duo .d-paid-m{color:#6e6e73;font-size:.85em}
+
+/* inner right pane: checkout → Apple Pay sheet → payment complete */
+.rmn .rmn-duo .d-pay > .d-body{height:calc(100% - 2.6em * .82)}
+.rmn .rmn-duo .d-head{display:grid;margin:.2em 0 .3em}
+.rmn .rmn-duo .d-head b{font-size:1.35em;font-weight:700}
+.rmn .rmn-duo .d-head span{color:#6e6e73;font-size:.85em}
+.rmn .rmn-duo .d-line{display:flex;align-items:center;gap:.7em;padding:.55em 0;border-top:1px solid #e5e5ea;border-bottom:1px solid #e5e5ea}
+.rmn .rmn-duo .d-line img{width:2.8em;height:2.8em;border-radius:.5em;object-fit:cover}
+.rmn .rmn-duo .d-line span{flex:1;display:grid}
+.rmn .rmn-duo .d-line b{font-weight:600;font-size:.95em}
+.rmn .rmn-duo .d-line i{font-style:normal;color:#6e6e73;font-size:.8em}
+.rmn .rmn-duo .d-line em{font-style:normal;font-weight:700;font-size:.95em}
+.rmn .rmn-duo .d-rows{display:grid;gap:.4em;margin-top:auto;font-size:.85em}
+.rmn .rmn-duo .d-rows span{display:flex;justify-content:space-between}
+.rmn .rmn-duo .d-rows i{font-style:normal;color:#6e6e73}
+.rmn .rmn-duo .d-rows .d-tot{font-weight:700;border-top:1px solid #e5e5ea;padding-top:.45em}
+.rmn .rmn-duo .d-rows .d-tot i{color:#1d1d1f}
+.rmn .rmn-duo .d-screen.d-pay::after{content:'';position:absolute;inset:0;z-index:1;background:rgba(0,0,0,.3);opacity:var(--sheet);transition:opacity var(--sheet-t) ease var(--sheet-d)}
+.rmn .rmn-duo .d-sheet{position:absolute;left:0;right:0;bottom:0;z-index:2;display:flex;flex-direction:column;gap:.75em;padding:1.1em 1.25em 1.35em;border-radius:1.3em 1.3em 0 0;background:#fff;box-shadow:0 -10px 30px rgba(0,0,0,.18);transform:translate3d(0,calc((1 - var(--sheet)) * 106%),0);transition:transform var(--sheet-t) cubic-bezier(.22,1,.36,1) var(--sheet-d)}
+.rmn .rmn-duo .d-sh-head{display:flex;justify-content:space-between;align-items:center}
+.rmn .rmn-duo .d-apay{display:flex;align-items:center;gap:.15em;font-size:1.35em;font-weight:700}
+.rmn .rmn-duo .d-apay svg{height:.95em;width:auto;margin-bottom:.12em}
+.rmn .rmn-duo .d-cancel{color:#0A84FF;font-size:.95em}
+.rmn .rmn-duo .d-sh-card{display:flex;align-items:center;gap:.7em;padding:.6em 0;border-top:1px solid #e5e5ea;border-bottom:1px solid #e5e5ea}
+.rmn .rmn-duo .d-sh-card span{display:grid}
+.rmn .rmn-duo .d-sh-card b{font-weight:600}
+.rmn .rmn-duo .d-sh-card i{font-style:normal;color:#6e6e73;font-size:.82em}
+.rmn .rmn-duo .d-sh-secure{display:flex;align-items:center;gap:.35em;color:#6e6e73;font-size:.78em}
+.rmn .rmn-duo .d-sh-secure .g-lock{height:.95em;width:auto}
+.rmn .rmn-duo .d-sh-secure em{margin-left:auto;font-style:normal;font-weight:600;color:#1d1d1f;background:#f2f2f7;padding:.2em .5em;border-radius:.4em}
+.rmn .rmn-duo .d-sh-total{display:flex;justify-content:space-between;align-items:baseline}
+.rmn .rmn-duo .d-sh-total i{font-style:normal;color:#6e6e73;font-size:.9em}
+.rmn .rmn-duo .d-sh-total b{font-size:1.3em;font-weight:700}
+.rmn .rmn-duo .d-sh-confirm{display:grid;margin-top:.2em}
+.rmn .rmn-duo .d-sh-confirm > span{grid-area:1/1;display:flex;align-items:center;justify-content:flex-end;gap:.5em;font-weight:600}
+.rmn .rmn-duo .d-sh-confirm i{font-style:normal}
+.rmn .rmn-duo .d-touch{color:#1d1d1f;opacity:calc(1 - var(--ok));transition:opacity .35s ease var(--ok-d)}
+.rmn .rmn-duo .d-touch svg{width:2.1em;height:2.1em;color:#E0616A}
+.rmn .rmn-duo .d-done{color:#1A9E55;opacity:var(--ok);transition:opacity .35s ease var(--ok-d)}
+.rmn .rmn-duo .d-done svg{width:2.1em;height:2.1em;padding:.35em;border-radius:50%;background:#1A9E55;color:#fff}
+.rmn .rmn-duo .d-success{position:absolute;inset:0;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.45em;padding:1.5em;text-align:center;background:#fff;opacity:var(--ps);transition:opacity .5s ease var(--ps-d)}
+.rmn .rmn-duo .d-badge{display:grid;place-items:center;width:3.6em;height:3.6em;border-radius:50%;background:#1A9E55;color:#fff;margin-bottom:.3em}
+.rmn .rmn-duo .d-badge svg{width:55%;height:55%}
+.rmn .rmn-duo .d-success > b{font-size:1.25em;font-weight:700}
+.rmn .rmn-duo .d-amt{font-size:1.7em;font-weight:700;letter-spacing:-.01em}
+.rmn .rmn-duo .d-m{color:#6e6e73;font-size:.9em}
+.rmn .rmn-duo .d-proc{display:flex;align-items:center;gap:.3em;margin-top:.6em;color:#6e6e73;font-size:.75em}
+.rmn .rmn-duo .d-proc svg{height:.95em;width:auto}
+/* compact tier for narrow panes (phones): bigger type, fewer rows */
+@container (max-width: 240px){
+  .rmn .rmn-duo .d-screen{font-size:5cqi}
+  .rmn .rmn-duo .d-or,.rmn .rmn-duo .d-sub,.rmn .rmn-duo .d-note,.rmn .rmn-duo .d-rows > span:not(.d-tot),.rmn .rmn-duo .d-sh-secure em{display:none}
+  .rmn .rmn-duo .d-outer .d-merchant{display:none}
+  .rmn .rmn-duo .d-outer .d-prod{aspect-ratio:16/9}
+}
+
+/* ── scenes ───────────────────────────────────────────────────────────────── */
+/* Scene 1 — your order, ready (also the state before the band). The defaults
+   double as the way back from scene 4: the Duo folds (1.2 s), then drops. */
+.rmn .rmn-spay-stage{
+  --scene-i:0;
+  --sum-o:1; --sum-y:0px; --sum-t:.6s; --sum-d:0s;
+  --pay-x:0%; --pay-s:1; --pay-o:1; --pay-t:.8s; --pay-d:0s;
+  --fill:0; --fill-d:0s; --fill-step:0ms; --fill-t:.25s; --brand:0; --brand-d:0s;
+  --done:0; --done-d:0s;
+  --duo-y:110%; --duo-o:0; --duo-t:.7s; --duo-d:1.2s; --duo-e:cubic-bezier(.55,0,.75,.3);
+  --duo-x:-25%; --leaf:180deg; --leaf-t:1.2s; --leaf-d:0s; --leaf-e:cubic-bezier(.65,0,.35,1);
+  --sh-x:.5; --shade-in:.6; --shade-out:0; --crease:0;
+  --sheet:0; --sheet-t:.45s; --sheet-d:0s; --ok:0; --ok-d:0s;
+  --ps:0; --ps-d:0s; --paid:0; --paid-d:0s;
+  --ofill:0; --ofill-d:0s; --ofill-step:0ms;
+}
+/* Scene 2 — the product steps aside: the summary lifts away, the form centres */
+.rmn .rmn-spay-stage[data-scene="2"]{
+  --scene-i:1;
+  --sum-o:0; --sum-y:-28px;
+  --pay-x:-40.9%; --pay-t:.9s; --pay-d:.12s;
+}
+/* Scene 3 — it fills itself: 8 fields, 180 ms apart; the Visa mark lights */
+.rmn .rmn-spay-stage[data-scene="3"]{
+  --scene-i:2;
+  --sum-o:0; --sum-y:-28px;
+  --pay-x:-40.9%; --pay-d:.5s;
+  --fill:1; --fill-d:.3s; --fill-step:180ms; --fill-t:.4s; --brand:1; --brand-d:1.3s;
+}
+/* Scene 4 — over to your phone: the form eases back, the Duo rises folded
+   (.9 s), then unfolds (1.35 s) and recentres */
+.rmn .rmn-spay-stage[data-scene="4"]{
+  --scene-i:3;
+  --sum-o:0; --sum-y:-28px;
+  --pay-x:-40.9%; --pay-s:.8; --pay-o:.2; --pay-t:.8s;
+  --fill:1; --brand:1;
+  --duo-y:0%; --duo-o:1; --duo-t:.9s; --duo-d:.25s; --duo-e:cubic-bezier(.22,1,.36,1);
+  --duo-x:0%; --leaf:0deg; --leaf-t:1.35s; --leaf-d:1.2s;
+  --sh-x:1; --shade-in:0; --shade-out:.6; --crease:1;
+}
+/* Scene 5 — confirm with a touch: the Apple Pay sheet slides up, the side
+   button's ring pulses twice, Touch ID → Done */
+.rmn .rmn-spay-stage[data-scene="5"]{
+  --scene-i:4;
+  --sum-o:0; --sum-y:-28px;
+  --pay-x:-40.9%; --pay-s:.8; --pay-o:.2;
+  --fill:1; --brand:1;
+  --duo-y:0%; --duo-o:1; --duo-t:.6s; --duo-d:0s; --duo-e:cubic-bezier(.22,1,.36,1);
+  --duo-x:0%; --leaf:0deg; --leaf-t:1.35s; --leaf-d:0s;
+  --sh-x:1; --shade-in:0; --shade-out:.6; --crease:1;
+  --sheet:1; --sheet-t:.7s; --sheet-d:.5s; --ok:1; --ok-d:3.5s;
+}
+/* Scene 6 — payment successful: the success screen, then the Duo folds shut
+   (1.2 s) and drops away while the card returns as a receipt */
+.rmn .rmn-spay-stage[data-scene="6"]{
+  --scene-i:5;
+  --sum-o:0; --sum-y:-28px;
+  --pay-x:-40.9%; --pay-s:1; --pay-o:1; --pay-t:.8s; --pay-d:3.2s;
+  --fill:1; --brand:1; --done:1; --done-d:2.9s;
+  --duo-y:115%; --duo-o:0; --duo-t:.8s; --duo-d:3.3s;
+  --duo-x:-25%; --leaf:180deg; --leaf-t:1.2s; --leaf-d:1.7s;
+  --sh-x:.5; --shade-in:.6; --shade-out:0; --crease:0;
+  --sheet:1; --ok:1; --ps:1; --ps-d:.1s; --paid:1; --paid-d:1.7s;
+}
+
+/* ── phones: the Duo alone, folded → unfolding in place ───────────────────── */
+@media (max-width:760px){
+  .rmn .rmn-spay{
+    padding-top:3.5rem;
+    --zones:5; --zone:35svh;
+    --duo-w:min(92vw, calc((100svh - 350px) * 1.397));
+  }
+  @supports (width: round(down, 10px, 4px)){
+    .rmn .rmn-spay{--duo-w:round(down, min(92vw, calc((100svh - 350px) * 1.397)), 4px)}
+  }
+  .rmn .rmn-spay-zone{top:calc(50svh + var(--zm) * var(--zone))}
+  .rmn .rmn-spay-zone[data-zone="1"]{height:0}
+  .rmn .rmn-spay-stage{align-items:stretch;padding:calc(var(--nav-h) + .2rem) 0 1rem}
+  .rmn .rmn-spay-inner{display:flex;flex-direction:column;gap:.8rem}
+  .rmn .rmn-spay-rail{display:contents}
+  .rmn .rmn-spay-steps{order:1}
+  .rmn .rmn-spay-step h3{font-size:1.45rem;margin:.2rem 0 .35rem}
+  .rmn .rmn-spay-step p{font-size:.92rem;line-height:1.6}
+  .rmn .rmn-spay-prog{order:2;margin-top:0}
+  .rmn .rmn-spay-visual{order:3;flex:1;min-height:0;height:auto}
+  .rmn .rmn-spay-cta{order:4;margin-top:0}
+  .rmn .rmn-spay-cta .btn{flex:1;justify-content:center;text-align:center;padding:.7rem 1rem;font-size:.92rem;white-space:nowrap}
+  .rmn .rmn-spay .rmn-spay-stripe{order:5;margin-top:0;align-self:center}
+  .rmn .rmn-spay .rmn-spay-stripe img{height:26px}
+  .rmn .rmn-spay :is(.rmn-spay-marks,.rmn-spay-trust,.rmn-spay-hint){display:none}
+  .rmn .rmn-spay-card{display:none}
+
+  /* the Duo is on stage from the start; only scenes 3, 4 and 6 differ from desktop */
+  .rmn .rmn-spay-stage[data-scene]{--duo-y:0%; --duo-o:1; --duo-t:.6s; --duo-d:0s}
+  .rmn .rmn-spay-stage[data-scene="3"]{--ofill:1; --ofill-d:.2s; --ofill-step:250ms}
+  .rmn .rmn-spay-stage[data-scene="4"],
+  .rmn .rmn-spay-stage[data-scene="5"]{--ofill:1}
+  .rmn .rmn-spay-stage[data-scene="4"]{--leaf-d:.3s}
+  .rmn .rmn-spay-stage[data-scene="6"]{--ofill:1; --paid-d:1.6s}
+}
+@media (max-width:760px) and (max-height:680px){
+  .rmn .rmn-spay .rmn-spay-stripe{display:none}
+  .rmn .rmn-spay{--duo-w:min(92vw, calc((100svh - 300px) * 1.397))}
+}
+
+/* ── /electronic-payment preview (PayDuoPreview): the visual alone, no band;
+   use-scene-autoplay steps data-scene. On phones the Duo is sized to the box it
+   sits in, not to the viewport — the open Duo is as wide as --duo-w, and the
+   preview frame's padding left it less than 92vw. ───────────────────────── */
+.rmn .rmn-spay--autoplay{padding:0;container-type:inline-size}
+.rmn .rmn-spay--autoplay .rmn-spay-stage{position:relative;height:auto;padding:0;display:block}
+.rmn .rmn-spay--autoplay .rmn-spay-visual{height:min(600px,74vh)}
+@media (max-width:760px){
+  .rmn .rmn-spay--autoplay .rmn-spay-stage{--duo-w:min(100cqi,520px)}
+  .rmn .rmn-spay--autoplay .rmn-spay-visual{height:calc(var(--duo-w) * .75 + 3rem)}
+}
+
+/* ── static: no band, no motion — the card filled in, the Duo open on the
+   Apple Pay sheet. For the CMS preview and no-JS here; reduced motion and very
+   short landscape screens in the media block below (same rules). ────────── */
+.rmn .rmn-spay--static .rmn-spay-band,:root:not([data-js]) .rmn .rmn-spay .rmn-spay-band{height:auto}
+.rmn .rmn-spay--static .rmn-spay-zone,:root:not([data-js]) .rmn .rmn-spay .rmn-spay-zone{display:none}
+.rmn .rmn-spay--static .rmn-spay-stage,:root:not([data-js]) .rmn .rmn-spay .rmn-spay-stage{position:relative;height:auto;padding:2.5rem 0 3rem;display:block}
+.rmn .rmn-spay--static .rmn-spay-steps,:root:not([data-js]) .rmn .rmn-spay .rmn-spay-steps{display:flex;flex-direction:column;gap:1.1rem}
+.rmn .rmn-spay--static .rmn-spay-step,:root:not([data-js]) .rmn .rmn-spay .rmn-spay-step{opacity:1;transform:none}
+.rmn .rmn-spay--static .rmn-spay-step h3,:root:not([data-js]) .rmn .rmn-spay .rmn-spay-step h3{font-size:1.15rem;margin:.1rem 0 .2rem}
+.rmn .rmn-spay--static .rmn-spay-prog,.rmn .rmn-spay--static .rmn-spay-hint,:root:not([data-js]) .rmn .rmn-spay .rmn-spay-prog,:root:not([data-js]) .rmn .rmn-spay .rmn-spay-hint{display:none}
+.rmn .rmn-spay--static .rmn-spay-visual,:root:not([data-js]) .rmn .rmn-spay .rmn-spay-visual{height:auto;grid-template-rows:auto auto}
+.rmn .rmn-spay--static .rmn-spay-card,:root:not([data-js]) .rmn .rmn-spay .rmn-spay-card{grid-area:1/1}
+.rmn .rmn-spay--static .rmn-duo-place,:root:not([data-js]) .rmn .rmn-spay .rmn-duo-place{grid-area:2/1;margin-top:-14%;justify-self:end}
+.rmn .rmn-spay--static .rmn-spay-stage[data-scene],:root:not([data-js]) .rmn .rmn-spay .rmn-spay-stage[data-scene]{
+  --sum-o:1; --sum-y:0px; --pay-x:0%; --pay-s:1; --pay-o:1; --fill:1; --brand:1; --done:0;
+  --duo-y:0%; --duo-o:1; --duo-x:0%; --leaf:0deg; --sh-x:1; --shade-in:0; --shade-out:.6; --crease:1;
+  --sheet:1; --ok:0; --ps:0; --paid:0; --ofill:0;
+}
+.rmn .rmn-spay--static *,.rmn .rmn-spay--static *::before,.rmn .rmn-spay--static *::after,
+:root:not([data-js]) .rmn .rmn-spay *,:root:not([data-js]) .rmn .rmn-spay *::before,:root:not([data-js]) .rmn .rmn-spay *::after{transition:none!important;animation:none!important}
+@media (prefers-reduced-motion:reduce),(max-height:560px) and (orientation:landscape){
+  .rmn .rmn-spay .rmn-spay-band{height:auto}
+  .rmn .rmn-spay .rmn-spay-zone{display:none}
+  .rmn .rmn-spay .rmn-spay-stage{position:relative;height:auto;padding:2.5rem 0 3rem;display:block}
+  .rmn .rmn-spay .rmn-spay-steps{display:flex;flex-direction:column;gap:1.1rem}
+  .rmn .rmn-spay .rmn-spay-step{opacity:1;transform:none}
+  .rmn .rmn-spay .rmn-spay-step h3{font-size:1.15rem;margin:.1rem 0 .2rem}
+  .rmn .rmn-spay .rmn-spay-prog,.rmn .rmn-spay .rmn-spay-hint{display:none}
+  .rmn .rmn-spay .rmn-spay-visual{height:auto;grid-template-rows:auto auto}
+  .rmn .rmn-spay .rmn-spay-card{grid-area:1/1}
+  .rmn .rmn-spay .rmn-duo-place{grid-area:2/1;margin-top:-14%;justify-self:end}
+  .rmn .rmn-spay .rmn-spay-stage[data-scene]{
+    --sum-o:1; --sum-y:0px; --pay-x:0%; --pay-s:1; --pay-o:1; --fill:1; --brand:1; --done:0;
+    --duo-y:0%; --duo-o:1; --duo-x:0%; --leaf:0deg; --sh-x:1; --shade-in:0; --shade-out:.6; --crease:1;
+    --sheet:1; --ok:0; --ps:0; --paid:0; --ofill:0;
+  }
+  .rmn .rmn-spay *,.rmn .rmn-spay *::before,.rmn .rmn-spay *::after{transition:none!important;animation:none!important}
+}
+/* narrow static (phones, the CMS preview column): the rail, then the open Duo */
+@media (max-width:760px){
+  .rmn .rmn-spay--static .rmn-spay-inner,:root:not([data-js]) .rmn .rmn-spay .rmn-spay-inner{display:flex;flex-direction:column;gap:1.4rem}
+  .rmn .rmn-spay--static .rmn-spay-rail,:root:not([data-js]) .rmn .rmn-spay .rmn-spay-rail{display:block}
+  .rmn .rmn-spay--static .rmn-duo-place,:root:not([data-js]) .rmn .rmn-spay .rmn-duo-place{margin-top:0;justify-self:center}
+}
+@media (max-width:760px) and (prefers-reduced-motion:reduce){
+  .rmn .rmn-spay .rmn-spay-inner{display:flex;flex-direction:column;gap:1.4rem}
+  .rmn .rmn-spay .rmn-spay-rail{display:block}
+  .rmn .rmn-spay .rmn-duo-place{margin-top:0;justify-self:center}
+}
+.rmn-preview .rmn .rmn-spay{padding:0;--duo-w:min(92cqi, 520px)}
+.rmn-preview .rmn .rmn-spay-inner{display:flex;flex-direction:column;gap:1.4rem;width:100%}
+.rmn-preview .rmn .rmn-spay-rail{display:block}
+.rmn-preview .rmn .rmn-spay-card{display:none}
+.rmn-preview .rmn .rmn-duo-place{margin-top:0;justify-self:center}
+.rmn-preview .rmn .rmn-spay-stage{padding:0}
